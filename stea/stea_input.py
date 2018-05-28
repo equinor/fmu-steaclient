@@ -41,11 +41,11 @@ class SteaInput(object):
         self.server = config.get(SteaInputKeys.SERVER, stea_server)
 
         self.profiles = {}
-        for profile_id,profile_data in config.get(SteaInputKeys.PROFILES, {}).iteritems():
+        for profile_id,profile_data in config.get(SteaInputKeys.PROFILES, {}).items():
             self.profiles[profile_id] = profile_data
 
         self.ecl_profiles = {}
-        for profile_id, profile_data in config.get(SteaInputKeys.ECL_PROFILES, {}).iteritems():
+        for profile_id, profile_data in config.get(SteaInputKeys.ECL_PROFILES, {}).items():
             self.ecl_profiles[profile_id] = profile_data
 
         self.ecl_case = None
