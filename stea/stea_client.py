@@ -16,9 +16,9 @@ class SteaClient(object):
 
     def get_project(self, project_id, project_version , config_date):
         url = "{server}/api/v1/alternative/{project_id}/{project_version}/summary?ConfigurationDate={config_date}".format(server = self.server,
-                                                                                                                   project_id = project_id,
-                                                                                                                   project_version = project_version,
-                                                                                                                   config_date = date_string(config_date))
+                                                                                                                          project_id = project_id,
+                                                                                                                          project_version = project_version,
+                                                                                                                          config_date = date_string(config_date))
         try:
             response = requests.get(url, verify = False)
             if not response.status_code == requests.codes.ok:
