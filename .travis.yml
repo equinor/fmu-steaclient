@@ -8,17 +8,16 @@ os:
 
 env:
   global:
-    - ECL_VER=master
-
+   - ECL_VER=master
+   -    
 
 before_install:
   - pushd ..
   - export ROOT="$PWD"
   - export INSTALL="$ROOT/install"
+  - export PYTHONPATH=$INSTALL/lib/python$TRAVIS_PYTHON_VERSION/dist-packages:$PYTHONPATH
   - git clone https://github.com/Statoil/libecl.git
   - popd
-  - export PYINSTALL="$INSTALL/lib/python$TRAVIS_PYTHON_VERSION/dist-packages"
-  - export PYTHONPATH=$PYINSTALL
 
 
 install:
@@ -36,5 +35,6 @@ install:
 
 
 script:
-  - python -m unittest discover -v -s tests
-
+  - python setup.py build
+  - python setup.py install
+  - python setup.py test 
