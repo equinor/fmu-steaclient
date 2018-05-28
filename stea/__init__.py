@@ -1,10 +1,3 @@
-from .stea_keys import SteaKeys, SteaInputKeys
-from .stea_client import SteaClient
-from .stea_project import SteaProject
-from .stea_request import SteaRequest
-from .stea_input import SteaInput
-from .stea_result import SteaResult
-
 """
 Small client which can call the Stea web service to perform economic analysis.
 
@@ -53,6 +46,21 @@ This package consists of the following classes:
   SteaResult: Small wrapping of the return value from the stea calcualtion.
 
 """
+
+try:
+    from .version import version as __version__
+except ImportError:
+    __version__ = '0.0.0'
+
+
+from .stea_keys import SteaKeys, SteaInputKeys
+from .stea_client import SteaClient
+from .stea_project import SteaProject
+from .stea_request import SteaRequest
+from .stea_input import SteaInput
+from .stea_result import SteaResult
+
+
 def calculate(stea_input):
     client = SteaClient(stea_input.server)
     project = client.get_project(stea_input.project_id,
