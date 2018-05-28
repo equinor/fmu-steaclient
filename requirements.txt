@@ -1,0 +1,6 @@
+# Also requires libecl - but that is not pip installable :-(
+
+requests
+pyyaml
+
+
