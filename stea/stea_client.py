@@ -22,7 +22,7 @@ class SteaClient(object):
         try:
             response = requests.get(url, verify = False)
             if not response.status_code == requests.codes.ok:
-                raise HTTPError("Could not post to: {url}  status: {status} msg: {text}".format(url=url,
+                raise HTTPError("Could not GET from: {url}  status: {status} msg: {text}".format(url=url,
                                                                                                 status=response.status_code,
                                                                                                 text=response.text))
         except RequestException as e:
