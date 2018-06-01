@@ -15,7 +15,7 @@ class SteaClient(object):
         self.server = server
 
     def get_project(self, project_id, project_version , config_date):
-        url = "{server}/api/v1/alternative/{project_id}/{project_version}/summary?ConfigurationDate={config_date}".format(server = self.server,
+        url = "{server}/api/v1/Alternative/{project_id}/{project_version}/summary?ConfigurationDate={config_date}".format(server = self.server,
                                                                                                                           project_id = project_id,
                                                                                                                           project_version = project_version,
                                                                                                                           config_date = date_string(config_date))
