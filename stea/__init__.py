@@ -82,5 +82,5 @@ def calculate(stea_input):
 
         request.add_profile(profile_id, start_year, data)
 
-    return SteaResult(client.calculate(request), project)
+    return SteaResult(client.calculate(request), stea_input)
 
