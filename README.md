@@ -75,7 +75,7 @@ def main(argv):
     config_file = sys.argv[1]
     stea_input = stea.SteaInput(config_file)
     res = stea.calculate(stea_input)
-    for res,value in res.results(SteaKeys.CORPORATE).items():
+    for res,value in res.results(stea.SteaKeys.CORPORATE).items():
         print("{res} : {value}".format(res=res, value=value)) 
          
          
