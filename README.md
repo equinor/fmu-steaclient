@@ -72,8 +72,7 @@ def main(argv):
     if len(argv) < 1:
        sys.exit("Need yaml formatted configuration file as first commandline argument")
     
-    config_file = sys.argv[1]
-    stea_input = stea.SteaInput(config_file)
+    stea_input = stea.SteaInput(sys.argv[1:])
     res = stea.calculate(stea_input)
     for res,value in res.results(stea.SteaKeys.CORPORATE).items():
         print("{res} : {value}".format(res=res, value=value)) 

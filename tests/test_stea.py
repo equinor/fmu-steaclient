@@ -109,7 +109,7 @@ class SteaTest(unittest.TestCase):
     def test_config(self):
         with TestAreaContext("stea_main"):
             with self.assertRaises(IOError):
-                cnf = SteaInput("File/does/not/exist")
+                cnf = SteaInput(["File/does/not/exist"])
 
             # An invalid YAML file:
             with open("config_file","w") as f:
@@ -117,7 +117,7 @@ class SteaTest(unittest.TestCase):
                 f.write("    key: value :\n")
 
             with self.assertRaises(ValueError):
-                stea_main = SteaInput("config_file")
+                stea_main = SteaInput(["config_file"])
 
 
             with open("config_file","w") as f:
@@ -133,7 +133,7 @@ class SteaTest(unittest.TestCase):
                 f.write("{}: \n".format(SteaInputKeys.RESULTS))
                 f.write("   - npv\n")
 
-            stea_input = SteaInput("config_file")
+            stea_input = SteaInput(["config_file"])
             self.assertEqual(stea_input.config_date, datetime.datetime(2018,10,10))
             self.assertEqual(stea_input.project_id, "abc100")
             self.assertEqual(stea_input.project_version, 1)
@@ -145,7 +145,31 @@ class SteaTest(unittest.TestCase):
                 f.write("{}: No-not-a-date".format(SteaInputKeys.CONFIG_DATE))
 
             with self.assertRaises(ValueError):
-                stea_main = SteaInput("config_file")
+                stea_main = SteaInput(["config_file"])
+
+    def test_input_argv(self):
+        with TestAreaContext("stea_input_argv"):
+
+            with open("config_file","w") as f:
+                f.write("{}: 2018-10-10\n".format(SteaInputKeys.CONFIG_DATE))
+                f.write("{}: abc100\n".format(SteaInputKeys.PROJECT_ID))
+                f.write("{}: 1\n".format(SteaInputKeys.PROJECT_VERSION))
+
+                f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
+                f.write("   ID1: \n")
+                f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
+                f.write("   ID2: \n")
+                f.write("      {}: FGPT\n".format(SteaInputKeys.ECL_KEY))
+                f.write("{}: \n".format(SteaInputKeys.RESULTS))
+                f.write("   - npv\n")
+
+            with self.assertRaises(IOError):
+                stea_input = SteaInput(["config_file", "--{}=CSV".format(SteaInputKeys.ECL_CASE)])
+
+            case = create_case()
+            case.fwrite()
+            stea_input = SteaInput(["config_file", "--{}=CSV".format(SteaInputKeys.ECL_CASE)])
+
 
     def test_request1(self):
         with TestAreaContext("stea_request"):
@@ -162,7 +186,7 @@ class SteaTest(unittest.TestCase):
                 f.write("{}: \n".format(SteaInputKeys.RESULTS))
                 f.write("   - npv\n")
 
-            stea_input = SteaInput("config_file")
+            stea_input = SteaInput(["config_file"])
             project = mock_project
 
             case = create_case()
@@ -192,7 +216,7 @@ class SteaTest(unittest.TestCase):
                 f.write("   - npv\n")
                 f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
 
-            stea_input = SteaInput("config_file")
+            stea_input = SteaInput(["config_file"])
             project = mock_project
             request = SteaRequest(stea_input, project)
 
@@ -203,7 +227,7 @@ class SteaTest(unittest.TestCase):
                 request.add_ecl_profile("INVALID-ID", "FOPT")
 
 
-    @unittest.skipUnless(online(), "Must be on statoil netword")
+    @unittest.skipUnless(online(), "Must be on statoil network")
     def test_calculate(self):
         with TestAreaContext("stea_request"):
             case = create_case()
@@ -220,7 +244,7 @@ class SteaTest(unittest.TestCase):
                 f.write("   - NPV\n")
                 f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
 
-            stea_input = SteaInput("config_file")
+            stea_input = SteaInput(["config_file"])
             results = calculate(stea_input)
 
 
@@ -240,7 +264,7 @@ class SteaTest(unittest.TestCase):
                 f.write("   - NPV\n")
                 f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
 
-            stea_input = SteaInput("config_file")
+            stea_input = SteaInput(["config_file"])
 
         result = SteaResult(mock_result, stea_input)
         with self.assertRaises(KeyError):
