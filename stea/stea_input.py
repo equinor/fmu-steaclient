@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 import os.path
 import datetime
 import yaml
@@ -22,17 +23,28 @@ def parse_date(date_input):
 
 stea_server = "https://st-w4771.statoil.net"
 
+def parse_args(argv):
+    parser = ArgumentParser()
+    parser.add_argument("config_file")
+    parser.add_argument("--{}".format(SteaInputKeys.ECL_CASE), dest="ecl_case")
+    return parser.parse_args(argv)
+
 
 class SteaInput(object):
 
-    def __init__(self, config_file):
-        if not os.path.isfile(config_file):
-            raise IOError("No such file:{}".format(config_file))
+    def __init__(self, argv):
+        args = parse_args( argv )
+        if not os.path.isfile(args.config_file):
+            raise IOError("No such file:{}".format(args.config_file))
 
         try:
-            config = yaml.load(open(config_file))
+            config = yaml.load(open(args.config_file))
         except:
-            raise ValueError("Could not load config file: {}".format(config_file))
+            raise ValueError("Could not load config file: {}".format(args.config_file))
+
+        if args.ecl_case:
+            config[SteaInputKeys.ECL_CASE] = args.ecl_case
+
 
         self.config_date = parse_date(config[SteaInputKeys.CONFIG_DATE])
         self.project_id = config[SteaInputKeys.PROJECT_ID]
@@ -51,3 +63,5 @@ class SteaInput(object):
         self.ecl_case = None
         if SteaInputKeys.ECL_CASE in config:
             self.ecl_case = EclSum(config[SteaInputKeys.ECL_CASE])
+
+
