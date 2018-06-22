@@ -21,7 +21,7 @@ def parse_date(date_input):
 
     return datetime.datetime.strptime(date_input, "%Y-%m-%d")
 
-stea_server = "https://st-w4771.statoil.net"
+stea_server = "https://ws2291.statoil.net"
 
 def parse_args(argv):
     parser = ArgumentParser()
