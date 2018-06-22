@@ -21,7 +21,8 @@ def parse_date(date_input):
 
     return datetime.datetime.strptime(date_input, "%Y-%m-%d")
 
-stea_server = "https://st-w4771.statoil.net"
+stea_server = "https://st-WS2291.statoil.net"
+
 
 def parse_args(argv):
     parser = ArgumentParser()
@@ -50,7 +51,7 @@ class SteaInput(object):
         self.project_id = config[SteaInputKeys.PROJECT_ID]
         self.project_version = config[SteaInputKeys.PROJECT_VERSION]
         self.results = config[SteaInputKeys.RESULTS]
-        self.server = config.get(SteaInputKeys.SERVER, stea_server)
+        self.server = config.get(SteaInputKeys.SERVER, stea_server_prod)
 
         self.profiles = {}
         for profile_id,profile_data in config.get(SteaInputKeys.PROFILES, {}).items():
