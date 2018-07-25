@@ -78,7 +78,7 @@ def calculate(stea_input):
 
     for profile_id, profile_data in stea_input.profiles.iteritems():
         start_year = profile_data.get(SteaInputKeys.START_YEAR)
-        data = profile_data.get(SteaInputKets.DATA)
+        data = profile_data.get(SteaInputKeys.DATA)
 
         request.add_profile(profile_id, start_year, data)
 
