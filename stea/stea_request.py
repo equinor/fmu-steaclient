@@ -9,8 +9,9 @@ class SteaRequest(object):
     units = {"Bbl" : {"SM3" : 1.0/6.2898 },
              "Sm3" : {"SM3" : 1.0}}
 
-    scale_factors = {"Mill" : 1.0/1000000,
-                     "1"    : 1.0}
+    scale_factors = {"1"        : 1.0,
+                     "Mill"     : 1.0e-6,
+                     "1000 Mill": 1.0e-9}
 
 
     def __init__(self, stea_input, project):
