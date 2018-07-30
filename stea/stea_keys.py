@@ -35,6 +35,7 @@ class SteaInputKeys(object):
     ECL_PROFILES    = "ecl-profiles"
     ECL_CASE        = "ecl-case"
     ECL_KEY         = "ecl-key"
+    ECL_MULT        = "mult"		
     SERVER          = "stea-server"
     START_YEAR      = "start-year"
     END_YEAR        = "end-year"

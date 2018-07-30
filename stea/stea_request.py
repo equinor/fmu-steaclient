@@ -1,4 +1,5 @@
 import datetime
+import types
 from .stea_keys import SteaKeys
 
 def date_string(dt):
@@ -44,7 +45,7 @@ class SteaRequest(object):
         return self.request_data
 
 
-    def add_ecl_profile(self, profile_id, key, first_year=None, last_year=None):
+    def add_ecl_profile(self, profile_id, key, first_year=None, last_year=None, multiplier=None):
         if self.stea_input.ecl_case is None:
             raise ValueError("When adding ecl_profile you must configure an Eclipse case")
 
@@ -60,6 +61,9 @@ class SteaRequest(object):
             end_date = case.end_date
             last_year = end_date.year
 
+        if multiplier is None:
+            multiplier = 1.0
+
         start_time = datetime.datetime(first_year, 1, 1)
         end_time = datetime.datetime(last_year + 1, 1,1)
         time_range = case.time_range(start=start_time, end=end_time, interval="1Y")
@@ -68,6 +72,11 @@ class SteaRequest(object):
         unit = self.project.get_profile_unit(profile_id)
         mult = self.project.get_profile_mult(profile_id)
         unit_conversion = self.units[unit][ecl_unit] * self.scale_factors[mult]
-        data = case.blocked_production(key, time_range) * unit_conversion
-        self.add_profile(profile_id, first_year, list(data))
+        data = list(case.blocked_production(key, time_range) * unit_conversion)
+        if isinstance(multiplier, types.ListType):
+          ni=min(len(multiplier),len(data))
+          data[:ni]=map(lambda x,y:x*y,data[:ni],multiplier[:ni])
+        else:
+          data = [x*multiplier for x in data]
+        self.add_profile(profile_id, first_year, data)
 

@@ -67,20 +67,31 @@ def calculate(stea_input):
                                  stea_input.project_version,
                                  stea_input.config_date)
     request = SteaRequest(stea_input, project)
-
+  
     for profile_id, profile_data in stea_input.ecl_profiles.iteritems():
-        ecl_key = profile_data[SteaInputKeys.ECL_KEY]
-        start_year = profile_data.get(SteaInputKeys.START_YEAR)
-        end_year = profile_data.get(SteaInputKeys.END_YEAR)
-
-        request.add_ecl_profile(profile_id, ecl_key, first_year=start_year, last_year=end_year)
+        if not profile_id in project.profiles:
+          profile_list=[k for k,v in project.profiles.items() if ('Description' in v and v['Description']==profile_id)]
+        else:
+          profile_list=[profile_id]
+        if len(profile_list)>0:
+          ecl_key = profile_data[SteaInputKeys.ECL_KEY]
+          mult = profile_data.get(SteaInputKeys.ECL_MULT)
+          start_year = profile_data.get(SteaInputKeys.START_YEAR)
+          end_year = profile_data.get(SteaInputKeys.END_YEAR)
+          for pid in profile_list:
+            request.add_ecl_profile(pid, ecl_key, first_year=start_year, last_year=end_year, multiplier=mult)
 
 
     for profile_id, profile_data in stea_input.profiles.iteritems():
-        start_year = profile_data.get(SteaInputKeys.START_YEAR)
-        data = profile_data.get(SteaInputKeys.DATA)
-
-        request.add_profile(profile_id, start_year, data)
+        if not profile_id in project.profiles:
+          profile_list=[k for k,v in project.profiles.items() if ('Description' in v and v['Description']==profile_id)]
+        else:
+          profile_list=[profile_id]
+        if len(profile_list)>0:
+          start_year = profile_data.get(SteaInputKeys.START_YEAR)
+          data = profile_data.get(SteaInputKeys.DATA)
+          for pid in profile_list:
+            request.add_profile(pid, start_year, data)
 
     return SteaResult(client.calculate(request), stea_input)
 
