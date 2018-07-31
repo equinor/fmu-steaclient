@@ -1,6 +1,7 @@
 import datetime
 import types
 from .stea_keys import SteaKeys
+import sys
 
 def date_string(dt):
     return dt.strftime("%Y-%m-%dT%H:%M:%S")
@@ -71,7 +72,12 @@ class SteaRequest(object):
 
         unit = self.project.get_profile_unit(profile_id)
         mult = self.project.get_profile_mult(profile_id)
-        unit_conversion = self.units[unit][ecl_unit] * self.scale_factors[mult]
+        if unit in self.units and ecl_unit in self.units[unit]:  
+          unitfactor = self.units[unit][ecl_unit]
+        else:
+          unitfactor = 1.0
+          sys.stdout.write('Default conversion between %s and %s to 1.\n' % (unit, ecl_unit))
+        unit_conversion = unitfactor * self.scale_factors[mult]
         data = list(case.blocked_production(key, time_range) * unit_conversion)
         if isinstance(multiplier, types.ListType):
           ni=min(len(multiplier),len(data))
