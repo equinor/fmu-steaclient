@@ -84,14 +84,14 @@ def calculate(stea_input):
 
     for profile_id, profile_data in stea_input.profiles.iteritems():
         if not profile_id in project.profiles:
-          profile_list=[k for k,v in project.profiles.items() if ('Description' in v and v['Description']==profile_id)]
+            profile_list=[k for k,v in project.profiles.items() if ('Description' in v and v['Description']==profile_id)]
         else:
-          profile_list=[profile_id]
+            profile_list=[profile_id]
         if len(profile_list)>0:
-          start_year = profile_data.get(SteaInputKeys.START_YEAR)
-          data = profile_data.get(SteaInputKeys.DATA)
-          for pid in profile_list:
-            request.add_profile(pid, start_year, data)
+            start_year = profile_data.get(SteaInputKeys.START_YEAR)
+            data = profile_data.get(SteaInputKeys.DATA)
+            for pid in profile_list:
+                request.add_profile(pid, start_year, data)
 
     return SteaResult(client.calculate(request), stea_input)
 

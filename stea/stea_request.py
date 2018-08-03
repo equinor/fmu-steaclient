@@ -73,16 +73,16 @@ class SteaRequest(object):
         unit = self.project.get_profile_unit(profile_id)
         mult = self.project.get_profile_mult(profile_id)
         if unit in self.units and ecl_unit in self.units[unit]:  
-          unitfactor = self.units[unit][ecl_unit]
+            unitfactor = self.units[unit][ecl_unit]
         else:
-          unitfactor = 1.0
-          sys.stdout.write('Default conversion between %s and %s to 1.\n' % (unit, ecl_unit))
+            unitfactor = 1.0
+            sys.stdout.write('Default conversion between %s and %s to 1.\n' % (unit, ecl_unit))
         unit_conversion = unitfactor * self.scale_factors[mult]
         data = list(case.blocked_production(key, time_range) * unit_conversion)
         if isinstance(multiplier, types.ListType):
-          ni=min(len(multiplier),len(data))
-          data[:ni]=map(lambda x,y:x*y,data[:ni],multiplier[:ni])
+            ni=min(len(multiplier),len(data))
+            data[:ni]=map(lambda x,y:x*y,data[:ni],multiplier[:ni])
         else:
-          data = [x*multiplier for x in data]
+            data = [x*multiplier for x in data]
         self.add_profile(profile_id, first_year, data)
 
