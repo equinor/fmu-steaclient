@@ -41,3 +41,4 @@ class SteaInputKeys(object):
     END_YEAR        = "end-year"
     PROFILES        = "profiles"
     DATA            = "data"
+    PROFILE_KEY     = "Description"

@@ -70,7 +70,7 @@ def calculate(stea_input):
   
     for profile_id, profile_data in stea_input.ecl_profiles.iteritems():
         if not profile_id in project.profiles:
-          profile_list=[k for k,v in project.profiles.items() if ('Description' in v and v['Description']==profile_id)]
+          profile_list=[k for k,v in project.profiles.items() if v.get(SteaInputKeys.PROFILE_KEY)==profile_id]
         else:
           profile_list=[profile_id]
         if len(profile_list)>0:
@@ -84,7 +84,7 @@ def calculate(stea_input):
 
     for profile_id, profile_data in stea_input.profiles.iteritems():
         if not profile_id in project.profiles:
-            profile_list=[k for k,v in project.profiles.items() if ('Description' in v and v['Description']==profile_id)]
+            profile_list=[k for k,v in project.profiles.items() if v.get(SteaInputKeys.PROFILE_KEY)==profile_id]
         else:
             profile_list=[profile_id]
         if len(profile_list)>0:
