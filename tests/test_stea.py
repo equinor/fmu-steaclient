@@ -70,9 +70,9 @@ class SteaTest(unittest.TestCase):
 
     def setUp(self):
         self.project_id = 4872
-        self.project_version = 1
+        self.project_version = 3
         self.config_date = datetime.datetime(2018, 6, 26, 11, 0 , 0)
-        self.fopt_profile_id = "b709ad66-54de-4424-8834-b644d0d68e09"
+        self.fopt_profile_id = "28558281-b82d-42a2-88a5-ba8e3e7d150d"
         self.test_server = test_server
         if online():
             self.client = SteaClient(self.test_server)
