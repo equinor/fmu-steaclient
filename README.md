@@ -51,6 +51,14 @@ ecl-profiles:
      start-year: 2020
      end-year: 2030
      
+  profile_comment_in_stea:
+     ecl-key: FWPT
+     mult: 1.1
+
+  another_profile_comment_in_stea:
+     ecl-key: FWPT
+     mult: [ 1.1, 2, 0 ]  
+ 
 # When you use the ecl-profiles keyword to update profiles feteched directly 
 # from an eclipse simulation you also need to set the ecl-case keyword to
 # point to an existing eclipse summary case on disk

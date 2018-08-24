@@ -73,6 +73,7 @@ class SteaTest(unittest.TestCase):
         self.project_version = 3
         self.config_date = datetime.datetime(2018, 6, 26, 11, 0 , 0)
         self.fopt_profile_id = "28558281-b82d-42a2-88a5-ba8e3e7d150d"
+        self.fopt_profile_id_desc = "FOPT"
         self.test_server = test_server
         if online():
             self.client = SteaClient(self.test_server)
@@ -280,6 +281,55 @@ class SteaTest(unittest.TestCase):
         self.assertIn("NPV", res)
         self.assertEqual(res["NPV"], 456)
 
+
+    @unittest.skipUnless(online(), "Must be on statoil network")
+    def test_mult(self):
+        with TestAreaContext("stea_request"):
+            case = create_case()
+            case.fwrite()
+            with open("config_file","w") as f:
+                f.write("{}: {}\n".format(SteaInputKeys.CONFIG_DATE, self.config_date))
+                f.write("{}: {}\n".format(SteaInputKeys.PROJECT_ID, self.project_id))
+                f.write("{}: {}\n".format(SteaInputKeys.PROJECT_VERSION, self.project_version))
+                f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
+                f.write("   {}: \n".format(self.fopt_profile_id))
+                f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
+                f.write("      {}: [2,1]\n".format(SteaInputKeys.ECL_MULT))
+                f.write("{}: {}\n".format(SteaInputKeys.SERVER, test_server))
+                f.write("{}: \n".format(SteaInputKeys.RESULTS))
+                f.write("   - NPV\n")
+                f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
+
+            stea_input = SteaInput(["config_file"])
+            results = calculate(stea_input)
+        res = results.results(SteaKeys.CORPORATE)
+        self.assertEqual(len(res), 1)
+        self.assertIn("NPV", res)
+        self.assertEqual(res["NPV"], 536.1371967150193)
+
+    @unittest.skipUnless(online(), "Must be on statoil network")
+    def test_desc(self):
+        with TestAreaContext("stea_request"):
+            case = create_case()
+            case.fwrite()
+            with open("config_file","w") as f:
+                f.write("{}: {}\n".format(SteaInputKeys.CONFIG_DATE, self.config_date))
+                f.write("{}: {}\n".format(SteaInputKeys.PROJECT_ID, self.project_id))
+                f.write("{}: {}\n".format(SteaInputKeys.PROJECT_VERSION, self.project_version))
+                f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
+                f.write("   {}: \n".format(self.fopt_profile_id_desc))
+                f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
+                f.write("{}: {}\n".format(SteaInputKeys.SERVER, test_server))
+                f.write("{}: \n".format(SteaInputKeys.RESULTS))
+                f.write("   - NPV\n")
+                f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
+
+            stea_input = SteaInput(["config_file"])
+            results = calculate(stea_input)
+        res = results.results(SteaKeys.CORPORATE)
+        self.assertEqual(len(res), 1)
+        self.assertIn("NPV", res)
+        self.assertEqual(res["NPV"], 536.1371967150193)
 
 if __name__ == "__main__":
     unittest.main()
