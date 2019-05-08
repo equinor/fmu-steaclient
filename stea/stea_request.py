@@ -1,7 +1,7 @@
 import datetime
 import types
-from .stea_keys import SteaKeys
 import sys
+from .stea_keys import SteaInputKeys, SteaKeys
 
 def date_string(dt):
     return dt.strftime("%Y-%m-%dT%H:%M:%S")
@@ -37,7 +37,8 @@ class SteaRequest(object):
         profile_data = {SteaKeys.PROFILE_ID : profile_id,
                         SteaKeys.DATA_OUTER : {
                             SteaKeys.DATA_INNER : data,
-                            SteaKeys.START_YEAR : start_year }}
+                            SteaKeys.START_YEAR : start_year }
+                        }
 
         self.request_data[SteaKeys.ADJUSTMENTS][SteaKeys.PROFILES].append(profile_data)
 
@@ -46,7 +47,7 @@ class SteaRequest(object):
         return self.request_data
 
 
-    def add_ecl_profile(self, profile_id, key, first_year=None, last_year=None, multiplier=None):
+    def add_ecl_profile(self, profile_id, key, first_year=None, last_year=None, multiplier=[1], global_multiplier=1):
         if self.stea_input.ecl_case is None:
             raise ValueError("When adding ecl_profile you must configure an Eclipse case")
 
@@ -62,9 +63,6 @@ class SteaRequest(object):
             end_date = case.end_date
             last_year = end_date.year
 
-        if multiplier is None:
-            multiplier = 1.0
-
         start_time = datetime.datetime(first_year, 1, 1)
         end_time = datetime.datetime(last_year + 1, 1,1)
         time_range = case.time_range(start=start_time, end=end_time, interval="1Y")
@@ -79,10 +77,8 @@ class SteaRequest(object):
             sys.stdout.write('Default conversion between %s and %s to 1.\n' % (unit, ecl_unit))
         unit_conversion = unitfactor * self.scale_factors[mult]
         data = list(case.blocked_production(key, time_range) * unit_conversion)
-        if isinstance(multiplier, types.ListType):
-            ni=min(len(multiplier),len(data))
-            data[:ni]=map(lambda x,y:x*y,data[:ni],multiplier[:ni])
-        else:
-            data = [x*multiplier for x in data]
+        ni = min(len(multiplier), len(data))
+        data[:ni] = map(lambda x, y: x * y, data[:ni], multiplier[:ni])
+        data = [x*global_multiplier for x in data]
         self.add_profile(profile_id, first_year, data)
 

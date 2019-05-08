@@ -23,22 +23,22 @@ class SteaKeys(object):
     PRETAX          = "Pretax"
     CORPORATE       = "Corporate"
 
-
 class SteaInputKeys(object):
     """The SteaInputKeys contains string constants used as keys in the
     configuration file used by the local stea client.
     """
-    CONFIG_DATE     = "config-date"
-    PROJECT_ID      = "project-id"
-    PROJECT_VERSION = "project-version"
+    CONFIG_DATE     = "config_date"
+    PROJECT_ID      = "project_id"
+    PROJECT_VERSION = "project_version"
     RESULTS         = "results"
-    ECL_PROFILES    = "ecl-profiles"
-    ECL_CASE        = "ecl-case"
-    ECL_KEY         = "ecl-key"
-    ECL_MULT        = "mult"		
-    SERVER          = "stea-server"
-    START_YEAR      = "start-year"
-    END_YEAR        = "end-year"
+    ECL_PROFILES    = "ecl_profiles"
+    ECL_CASE        = "ecl_case"
+    ECL_KEY         = "ecl_key"
+    ECL_MULT        = "mult"
+    ECL_GLOB_MULT   = "glob_mult"
+    SERVER          = "stea_server"
+    START_YEAR      = "start_year"
+    END_YEAR        = "end_year"
     PROFILES        = "profiles"
     DATA            = "data"
     PROFILE_KEY     = "Description"

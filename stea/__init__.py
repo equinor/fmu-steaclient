@@ -53,43 +53,52 @@ except ImportError:
     __version__ = '0.0.0'
 
 
-from .stea_keys import SteaKeys, SteaInputKeys
+from .stea_keys import SteaKeys
+from .stea_keys import SteaInputKeys
 from .stea_client import SteaClient
 from .stea_project import SteaProject
 from .stea_request import SteaRequest
 from .stea_input import SteaInput
 from .stea_result import SteaResult
+from .stea_config import _build_schema
 
 
 def calculate(stea_input):
-    client = SteaClient(stea_input.server)
+    client = SteaClient(stea_input.stea_server)
     project = client.get_project(stea_input.project_id,
                                  stea_input.project_version,
                                  stea_input.config_date)
     request = SteaRequest(stea_input, project)
+
+
   
-    for profile_id, profile_data in stea_input.ecl_profiles.iteritems():
-        if not profile_id in project.profiles:
-          profile_list=[k for k,v in project.profiles.items() if v.get(SteaInputKeys.PROFILE_KEY)==profile_id]
-        else:
-          profile_list=[profile_id]
-        if len(profile_list)>0:
-          ecl_key = profile_data[SteaInputKeys.ECL_KEY]
-          mult = profile_data.get(SteaInputKeys.ECL_MULT)
-          start_year = profile_data.get(SteaInputKeys.START_YEAR)
-          end_year = profile_data.get(SteaInputKeys.END_YEAR)
-          for pid in profile_list:
-            request.add_ecl_profile(pid, ecl_key, first_year=start_year, last_year=end_year, multiplier=mult)
-
-
-    for profile_id, profile_data in stea_input.profiles.iteritems():
+    for profile_id, profile_data in stea_input.ecl_profiles:
         if not profile_id in project.profiles:
             profile_list=[k for k,v in project.profiles.items() if v.get(SteaInputKeys.PROFILE_KEY)==profile_id]
         else:
             profile_list=[profile_id]
         if len(profile_list)>0:
-            start_year = profile_data.get(SteaInputKeys.START_YEAR)
-            data = profile_data.get(SteaInputKeys.DATA)
+            ecl_key = profile_data.ecl_key
+            mult = profile_data.mult
+            glob_mult = profile_data.glob_mult
+            start_year = profile_data.start_year
+            end_year = profile_data.end_year
+            for pid in profile_list:
+                if mult is None:
+                    mult = [1]
+                if glob_mult is None:
+                    glob_mult = 1.0
+                request.add_ecl_profile(pid, ecl_key, first_year=start_year, last_year=end_year, multiplier=mult, global_multiplier=glob_mult)
+
+
+    for profile_id, profile_data in stea_input.profiles:
+        if not profile_id in project.profiles:
+            profile_list=[k for k,v in project.profiles.items() if v.get(SteaInputKeys.PROFILE_KEY)==profile_id]
+        else:
+            profile_list=[profile_id]
+        if len(profile_list)>0:
+            start_year = profile_data.start_year
+            data = profile_data.data
             for pid in profile_list:
                 request.add_profile(pid, start_year, data)
 

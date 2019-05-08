@@ -22,6 +22,6 @@ setup(name='stea',
       setup_requires=['setuptools_scm'],
       use_scm_version={'write_to' : 'stea/version.py'},
       platforms='any',
-      install_requires=['requests','pyyaml'],
+      install_requires=['requests','pyyaml','configsuite'],
       test_suite='tests.suite',
 )
