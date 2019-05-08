@@ -2,9 +2,10 @@ from argparse import ArgumentParser
 import os.path
 import datetime
 import yaml
-import argparse
-from .stea_client import SteaClient
-from .stea_keys import SteaInputKeys, SteaKeys
+import configsuite
+from .stea_config import _build_schema
+
+
 
 try:
     from ecl.summary import EclSum
@@ -21,12 +22,10 @@ def parse_date(date_input):
 
     return datetime.datetime.strptime(date_input, "%Y-%m-%d")
 
-stea_server = "https://ws2291.statoil.net"
-
 def parse_args(argv):
     parser = ArgumentParser()
     parser.add_argument("config_file")
-    parser.add_argument("--{}".format(SteaInputKeys.ECL_CASE), dest="ecl_case")
+    parser.add_argument("--{}".format('ecl_case'), dest="ecl_case")
     return parser.parse_args(argv)
 
 
@@ -38,30 +37,33 @@ class SteaInput(object):
             raise IOError("No such file:{}".format(args.config_file))
 
         try:
-            config = yaml.load(open(args.config_file))
-        except:
-            raise ValueError("Could not load config file: {}".format(args.config_file))
+            schema = _build_schema()
+            defaults = {'stea_server':"https://ws2291.statoil.net",'profiles':{}}
+
+            config = configsuite.ConfigSuite(
+                yaml.load(open(args.config_file)),
+                schema,
+                layers=(defaults,))
+
+            if not config.valid:
+                raise ValueError('Config file is not a vadid config file: {}'.format(config.errors))
+
+            self.config = config
+
+        except Exception as ex:
+            raise ValueError("Could not load config file: {file}\nFull message: {ex}".format(
+                file=args.config_file,
+                ex=ex)
+            )
 
         if args.ecl_case:
-            config[SteaInputKeys.ECL_CASE] = args.ecl_case
+            ecl_case_data = {'ecl_case':args.ecl_case}
+            self.config = self.config.push(ecl_case_data)
 
+        if self.ecl_case is not None:
+            self.ecl_case = EclSum(self.ecl_case)
 
-        self.config_date = parse_date(config[SteaInputKeys.CONFIG_DATE])
-        self.project_id = config[SteaInputKeys.PROJECT_ID]
-        self.project_version = config[SteaInputKeys.PROJECT_VERSION]
-        self.results = config[SteaInputKeys.RESULTS]
-        self.server = config.get(SteaInputKeys.SERVER, stea_server)
-
-        self.profiles = {}
-        for profile_id,profile_data in config.get(SteaInputKeys.PROFILES, {}).items():
-            self.profiles[profile_id] = profile_data
-
-        self.ecl_profiles = {}
-        for profile_id, profile_data in config.get(SteaInputKeys.ECL_PROFILES, {}).items():
-            self.ecl_profiles[profile_id] = profile_data
-
-        self.ecl_case = None
-        if SteaInputKeys.ECL_CASE in config:
-            self.ecl_case = EclSum(config[SteaInputKeys.ECL_CASE])
+    def __getattr__(self, key):
+        return self.config.snapshot.__getattribute__(key)
 
 

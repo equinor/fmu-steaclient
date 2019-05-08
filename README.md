@@ -18,7 +18,7 @@ project-version: 1
 # All information in stea is versioned with a timestamp. When we request a 
 # calculation we must specify wich date we wish to use to fetch configuration 
 # information for assumptions like e.g. the oil price.
-config-date: 2018-07-01
+config-date: 2018-07-01 12:00:00
 
 
 # The stea web client works by *adjusting* the profiles in an existing
@@ -53,7 +53,7 @@ ecl-profiles:
      
   profile_comment_in_stea:
      ecl-key: FWPT
-     mult: 1.1
+     glob_mult: 1.1
 
   another_profile_comment_in_stea:
      ecl-key: FWPT
@@ -77,10 +77,12 @@ import sys
 import stea
 
 def main(argv):
-    if len(argv) < 1:
-       sys.exit("Need yaml formatted configuration file as first commandline argument")
+     if len(argv) == 2:
+        fname = argv[1]
+    else:
+        raise AttributeError('Need yaml formatted configuration file as first commandline argument')
     
-    stea_input = stea.SteaInput(sys.argv[1:])
+    stea_input = stea.SteaInput([fname])
     res = stea.calculate(stea_input)
     for res,value in res.results(stea.SteaKeys.CORPORATE).items():
         print("{res} : {value}".format(res=res, value=value)) 

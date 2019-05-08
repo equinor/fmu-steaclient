@@ -5,7 +5,7 @@ import subprocess
 import datetime
 import requests
 from requests.exceptions import ConnectionError
-from stea import calculate, SteaClient, SteaRequest, SteaProject, SteaInput, SteaKeys, SteaInputKeys, SteaResult
+from stea import calculate, SteaClient, SteaRequest, SteaProject, SteaInput, SteaInputKeys, SteaKeys, SteaResult
 
 from ecl.util.test.ecl_mock import createEclSum
 from ecl.util.test import TestAreaContext
@@ -122,8 +122,8 @@ class SteaTest(unittest.TestCase):
 
 
             with open("config_file","w") as f:
-                f.write("{}: 2018-10-10\n".format(SteaInputKeys.CONFIG_DATE))
-                f.write("{}: abc100\n".format(SteaInputKeys.PROJECT_ID))
+                f.write("{}: 2018-10-10 12:00:00\n".format(SteaInputKeys.CONFIG_DATE))
+                f.write("{}: 1234\n".format(SteaInputKeys.PROJECT_ID))
                 f.write("{}: 1\n".format(SteaInputKeys.PROJECT_VERSION))
 
                 f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
@@ -135,12 +135,13 @@ class SteaTest(unittest.TestCase):
                 f.write("   - npv\n")
 
             stea_input = SteaInput(["config_file"])
-            self.assertEqual(stea_input.config_date, datetime.datetime(2018,10,10))
-            self.assertEqual(stea_input.project_id, "abc100")
+            self.assertEqual(stea_input.config_date, datetime.datetime(2018, 10, 10, 12, 0, 0))
+            self.assertEqual(stea_input.project_id, 1234)
             self.assertEqual(stea_input.project_version, 1)
             self.assertEqual(2, len(stea_input.ecl_profiles))
-            self.assertIn("ID1", stea_input.ecl_profiles)
-            self.assertIn("ID2", stea_input.ecl_profiles)
+            keys = [key[0] for key in stea_input.ecl_profiles]
+            self.assertTrue('ID1' in keys)
+            self.assertTrue('ID2' in keys)
 
             with open("config_file","w") as f:
                 f.write("{}: No-not-a-date".format(SteaInputKeys.CONFIG_DATE))
@@ -152,8 +153,8 @@ class SteaTest(unittest.TestCase):
         with TestAreaContext("stea_input_argv"):
 
             with open("config_file","w") as f:
-                f.write("{}: 2018-10-10\n".format(SteaInputKeys.CONFIG_DATE))
-                f.write("{}: abc100\n".format(SteaInputKeys.PROJECT_ID))
+                f.write("{}: 2018-10-10 12:00:00\n".format(SteaInputKeys.CONFIG_DATE))
+                f.write("{}: 1234\n".format(SteaInputKeys.PROJECT_ID))
                 f.write("{}: 1\n".format(SteaInputKeys.PROJECT_VERSION))
 
                 f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
@@ -175,8 +176,8 @@ class SteaTest(unittest.TestCase):
     def test_request1(self):
         with TestAreaContext("stea_request"):
             with open("config_file","w") as f:
-                f.write("{}: 2018-10-10\n".format(SteaInputKeys.CONFIG_DATE))
-                f.write("{}: abc100\n".format(SteaInputKeys.PROJECT_ID))
+                f.write("{}: 2018-10-10 12:00:00\n".format(SteaInputKeys.CONFIG_DATE))
+                f.write("{}: 1234\n".format(SteaInputKeys.PROJECT_ID))
                 f.write("{}: 1\n".format(SteaInputKeys.PROJECT_VERSION))
 
                 f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
@@ -204,8 +205,8 @@ class SteaTest(unittest.TestCase):
             case = create_case()
             case.fwrite()
             with open("config_file","w") as f:
-                f.write("{}: 2018-10-10\n".format(SteaInputKeys.CONFIG_DATE))
-                f.write("{}: abc100\n".format(SteaInputKeys.PROJECT_ID))
+                f.write("{}: 2018-10-10 12:00:00\n".format(SteaInputKeys.CONFIG_DATE))
+                f.write("{}: 1234\n".format(SteaInputKeys.PROJECT_ID))
                 f.write("{}: 1\n".format(SteaInputKeys.PROJECT_VERSION))
 
                 f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
@@ -247,6 +248,8 @@ class SteaTest(unittest.TestCase):
 
             stea_input = SteaInput(["config_file"])
             results = calculate(stea_input)
+            for res, value in results.results(SteaKeys.CORPORATE).items():
+                print('DBG_TEST {}, {}'.format(res, value))
 
 
     def test_results(self):
