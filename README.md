@@ -6,7 +6,7 @@ is a Python package, to actually use it you will need to write your own
 executable script.
 
 The main way to configure the stea client is through a yaml file, an example
-configarton file is shown here:
+configuration file is shown here:
 
 ```yaml
 # The id of the project, which must already exist and be available in 
