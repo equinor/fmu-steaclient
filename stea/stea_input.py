@@ -32,21 +32,21 @@ def parse_args(argv):
 class SteaInput(object):
 
     def __init__(self, argv):
-        args = parse_args( argv )
+        args = parse_args(argv)
         if not os.path.isfile(args.config_file):
             raise IOError("No such file:{}".format(args.config_file))
 
         try:
             schema = _build_schema()
-            defaults = {'stea_server':"https://ws2291.statoil.net",'profiles':{}}
-
-            config = configsuite.ConfigSuite(
-                yaml.load(open(args.config_file)),
-                schema,
-                layers=(defaults,))
+            defaults = {'stea_server': "https://ws2291.statoil.net", 'profiles': {}}
+            with open(args.config_file, "r") as config_file:
+                config = configsuite.ConfigSuite(
+                    yaml.safe_load(config_file),
+                    schema,
+                    layers=(defaults,))
 
             if not config.valid:
-                raise ValueError('Config file is not a vadid config file: {}'.format(config.errors))
+                raise ValueError('Config file is not a valid config file: {}'.format(config.errors))
 
             self.config = config
 
