@@ -9,7 +9,6 @@ os:
 env:
   global:
    - ECL_VER=master
-   -    
 
 before_install:
   - pushd ..
@@ -38,3 +37,14 @@ script:
   - python setup.py build
   - python setup.py install
   - python setup.py test 
+
+deploy:
+  - provider: pypi
+    user: statoil-travis
+    distributions: bdist_wheel sdist
+    skip_existing: true
+    password:
+      secure: HMdPrOEcjZ047Z/4h6IyXgV+90CHNQ1jW0rS0YFnYYkD//qSaou3F5+vWx6aJjm2YajycTjWGhIW2J5LGcEU+HP1SI6QhGqBQO8mcLZb8w6Em6LpDYnfRmMtU+Wb8mI82krpI9F/oP++TA9bOZFf1blBswECEoQ4pxatEpkBsfFq4kvOuORcmh2CRvdvplfJ5a0HMSIyqlJnlKCHUHFTdj9oI0wzitxnfggyY3055z7pTg2Yy3dHRVW+rZ34Cuu0Q6c95FyH5RLmY0Spu0MeDggyddyPxM2b/7iF5VqCa+BQFLMDQ1Jha9WZGHF9ETuz/Aqpo3eUmLwv2P9GJ2rywenhIeaPrEc5E8epZLXcUZCtIk5VsBg7sh9sdSEtC10l3fvIdIAF3rr7NK4zqLOzJxwU9JJ8y8dbR+cJff5nYv3I1Ciqdjo5h+o5ccuFgmrNJTQx3FKkPzEnaep4JieIdf67P95Fh1DAgVZO/T9mmdihYX4TWuvKboOyJqOtLcvwA0uLvmzJ3IE9/yGHif5/7p5yXqKG/YjyckhiX9ioXkRLh04p69fJHAVbvi0fs3iG271ANVsPVSbmJD+iNaofEbkc9eFwCW6oy0C3hmM981KMljB9XJUcTkvG959iEzr5RDEKici+kT78fBJoQQdK00yvQdRZYv/nVC08hUOoaW0=
+    on:
+      tags: true
+      branch: master
