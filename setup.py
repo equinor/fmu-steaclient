@@ -2,19 +2,8 @@
 
 from setuptools import setup
 
-long_description = """
-====
-stea
-====
-
-Introduction
-------------
-
-"""
-
 setup(name='stea',
       description='stea - calculate economic analysis',
-      long_description=long_description,
       author="Software Innovation Bergen, Equinor ASA",
       url='https://github.com/equinor/stea',
       packages=['stea'],
