@@ -9,7 +9,7 @@ from .stea_config import _build_schema
 try:
     from ecl.summary import EclSum
 except ImportError:
-    from ert.ecl import EclSum
+    from ecl.ecl import EclSum
 
 
 def parse_date(date_input):
