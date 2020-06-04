@@ -3,6 +3,11 @@ from configsuite import MetaKeys as MK
 from configsuite import types
 
 
+@configsuite.validator_msg("Must be defined")
+def _is_not_empty(container):
+    return len(container) > 0
+
+
 @configsuite.transformation_msg("Fix key names by replacing: `-` with `_`")
 def _fix_keys(elem):
     fix_dict = {}
@@ -24,17 +29,14 @@ def _build_schema():
                     "The id (a number) of the project, which must already exist and be available in"
                     "the stea database. In the Stea documentation this is called 'AlternativeId'"
                 ),
-                MK.Required: True,
             },
             "project_version": {
                 MK.Type: types.Number,
                 MK.Description: "Project alternative version number that comes from stea database",
-                MK.Required: True,
             },
             "config_date": {
                 MK.Type: types.DateTime,
                 MK.Description: "timestamp: Y-M-D H:M:S that comes with stea request",
-                MK.Required: True,
             },
             "profiles": {
                 MK.Type: types.Dict,
@@ -43,24 +45,23 @@ def _build_schema():
                     "configuration file. Each profile is identified with an id from the"
                     "existing stea project, a start year and the actual data"
                 ),
-                MK.Required: False,
                 MK.Content: {
                     MK.Key: {MK.Type: types.String},
                     MK.Value: {
                         MK.Type: types.NamedDict,
                         MK.LayerTransformation: _fix_keys,
-                        MK.Required: False,
                         MK.Content: {
                             "start_year": {
                                 MK.Type: types.Integer,
                                 MK.Description: "Start year (an Integer)",
-                                MK.Required: False,
+                                MK.AllowNone: True,
                             },
                             "data": {
                                 MK.Type: types.List,
                                 MK.Description: "Values",
-                                MK.Required: False,
-                                MK.Content: {MK.Item: {MK.Type: types.Number}},
+                                MK.Content: {
+                                    MK.Item: {MK.Type: types.Number, MK.AllowNone: True}
+                                },
                             },
                         },
                     },
@@ -68,22 +69,20 @@ def _build_schema():
             },
             "ecl_profiles": {
                 MK.Type: types.Dict,
+                MK.ElementValidators: (_is_not_empty,),
                 MK.Description: (
                     "Profiles which are calculated directly from an eclipse simulation."
                     "They are listed with the ecl-profiles ecl_key."
                 ),
-                MK.Required: True,
                 MK.Content: {
                     MK.Key: {MK.Type: types.String},
                     MK.Value: {
                         MK.Type: types.NamedDict,
                         MK.LayerTransformation: _fix_keys,
-                        MK.Required: True,
                         MK.Content: {
                             "ecl_key": {
                                 MK.Type: types.String,
                                 MK.Description: "Summary key",
-                                MK.Required: True,
                             },
                             "start_year": {
                                 MK.Type: types.Integer,
@@ -93,7 +92,7 @@ def _build_schema():
                                     "data, but you can optionally use the keywords start-year and end-year to"
                                     "limit the time range."
                                 ),
-                                MK.Required: False,
+                                MK.AllowNone: True,
                             },
                             "end_year": {
                                 MK.Type: types.Integer,
@@ -103,19 +102,19 @@ def _build_schema():
                                     "data, but you can optionally use the keywords start-year and end-year to"
                                     "limit the time range."
                                 ),
-                                MK.Required: False,
+                                MK.AllowNone: True,
                             },
                             "mult": {
                                 MK.Type: types.List,
-                                MK.Required: False,
                                 MK.Description: "List of multipliers of eclsum key",
-                                MK.Content: {MK.Item: {MK.Type: types.Number}},
+                                MK.Content: {
+                                    MK.Item: {MK.Type: types.Number, MK.AllowNone: True}
+                                },
                             },
                             "glob_mult": {
                                 MK.Type: types.Number,
-                                MK.Required: False,
                                 MK.Description: "A single global multiplier of eclsum key",
-                                MK.Content: {MK.Item: {MK.Type: types.Integer}},
+                                MK.AllowNone: True,
                             },
                         },
                     },
@@ -124,17 +123,17 @@ def _build_schema():
             "stea_server": {
                 MK.Type: types.String,
                 MK.Description: "stea server host.",
-                MK.Required: False,
+                MK.AllowNone: True,
             },
             "ecl_case": {
                 MK.Type: types.String,
                 MK.Description: "ecl case location",
-                MK.Required: False,
+                MK.AllowNone: True,
             },
             "results": {
                 MK.Type: types.List,
+                MK.ElementValidators: (_is_not_empty,),
                 MK.Description: ("Specify what STEA should calculate"),
-                MK.Required: True,
                 MK.Content: {MK.Item: {MK.Type: types.String}},
             },
         },

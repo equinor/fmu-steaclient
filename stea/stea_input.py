@@ -37,10 +37,15 @@ class SteaInput(object):
 
         try:
             schema = _build_schema()
-            defaults = {"stea_server": "https://ws2291.statoil.net", "profiles": {}}
+            defaults = {"stea_server": "https://ws2291.statoil.net"}
             with open(args.config_file, "r") as config_file:
+                config_dict = yaml.safe_load(config_file)
+
+                if args.ecl_case:
+                    config_dict["ecl_case"] = args.ecl_case
+
                 config = configsuite.ConfigSuite(
-                    yaml.safe_load(config_file), schema, layers=(defaults,)
+                    config_dict, schema, layers=(defaults,), deduce_required=True,
                 )
 
             if not config.valid:
@@ -56,10 +61,6 @@ class SteaInput(object):
                     file=args.config_file, ex=ex
                 )
             )
-
-        if args.ecl_case:
-            ecl_case_data = {"ecl_case": args.ecl_case}
-            self.config = self.config.push(ecl_case_data)
 
         if self.ecl_case is not None:
             self.ecl_case = EclSum(self.ecl_case)
