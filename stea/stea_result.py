@@ -1,11 +1,10 @@
 from .stea_keys import SteaKeys
 
-class SteaResult(object):
 
+class SteaResult(object):
     def __init__(self, data, stea_input):
         self.data = data
         self.stea_input = stea_input
-
 
     def results(self, tax_mode):
         res = {}
