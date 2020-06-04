@@ -10,7 +10,7 @@ setup(name='stea',
       setup_requires=['setuptools_scm'],
       use_scm_version={'write_to': 'stea/version.py'},
       platforms='any',
-      install_requires=['requests','pyyaml','configsuite'],
+      install_requires=['requests','pyyaml','configsuite<0.6'],
       test_suite='tests.suite',
       classifiers=[
             "Development Status :: 1 - Planning",
