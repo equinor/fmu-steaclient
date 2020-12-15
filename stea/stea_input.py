@@ -45,7 +45,10 @@ class SteaInput(object):
                     config_dict["ecl_case"] = args.ecl_case
 
                 config = configsuite.ConfigSuite(
-                    config_dict, schema, layers=(defaults,), deduce_required=True,
+                    config_dict,
+                    schema,
+                    layers=(defaults,),
+                    deduce_required=True,
                 )
 
             if not config.valid:

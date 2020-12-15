@@ -21,7 +21,11 @@ def remove_key(d, key):
 
 @pytest.mark.usefixtures("use_tmpdir")
 @pytest.mark.parametrize(
-    "ecl_case", ["some_ecl_case_name", None,],
+    "ecl_case",
+    [
+        "some_ecl_case_name",
+        None,
+    ],
 )
 def test_minimal_config(ecl_case, tmpdir, mocker, monkeypatch):
     valid_config = {
