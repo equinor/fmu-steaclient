@@ -1,4 +1,6 @@
-# Stea [![Build Status](https://travis-ci.org/Statoil/stea.svg?branch=master)](https://travis-ci.org/Statoil/stea)
+[![Actions Status](https://github.com/equinor/stea/workflows/CI/badge.svg)](https://github.com/equinor/stea/actions?query=workflow=CI)
+
+# Stea 
 
 Stea is a HTTP client for Stea calculations, some documentation can be found in
 the [stea/__init__.py](stea/__init__.py) file. The source code in this project
