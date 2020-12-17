@@ -1,2 +1,0 @@
-# Requires libecl, will be added as requirement when libres is pip installable
-libecl
