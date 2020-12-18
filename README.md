@@ -79,14 +79,14 @@ import sys
 import stea
 
 def main(argv):
-     if len(argv) == 2:
-        fname = argv[1]
+    if len(argv) == 2:
+       fname = argv[1]
     else:
         raise AttributeError('Need yaml formatted configuration file as first commandline argument')
-    
+
     stea_input = stea.SteaInput([fname])
     res = stea.calculate(stea_input)
-    for res,value in res.results(stea.SteaKeys.CORPORATE).items():
+    for res, value in res.results(stea.SteaKeys.CORPORATE).items():
         print("{res} : {value}".format(res=res, value=value)) 
          
          
