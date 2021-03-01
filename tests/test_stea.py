@@ -1,8 +1,4 @@
 import pytest
-import unittest
-import json
-import os
-import subprocess
 import datetime
 import requests
 from requests.exceptions import ConnectionError
