@@ -273,7 +273,7 @@ def test_request2():
             request.add_ecl_profile("INVALID-ID", "FOPT")
 
 
-@pytest.mark.skipif(not online(), reason="Must be on statoil network")
+@pytest.mark.skipif(not online(), reason="Must be on Equinor network")
 def test_calculate(set_up):
     with TestAreaContext("stea_request"):
         case = create_case()
@@ -333,7 +333,7 @@ def test_results(set_up):
     assert res["NPV"] == 456
 
 
-@pytest.mark.skipif(not online(), reason="Must be on statoil network")
+@pytest.mark.skipif(not online(), reason="Must be on Equinor network")
 def test_mult(set_up):
     with TestAreaContext("stea_request"):
         case = create_case()
@@ -361,7 +361,7 @@ def test_mult(set_up):
     assert pytest.approx(536.1371967150193, res["NPV"])
 
 
-@pytest.mark.skipif(not online(), reason="Must be on statoil network")
+@pytest.mark.skipif(not online(), reason="Must be on Equinor network")
 def test_desc(set_up):
     with TestAreaContext("stea_request"):
         case = create_case()
