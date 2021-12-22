@@ -1,6 +1,6 @@
 # Contributing
 
-The following is a set of guidelines for contributing to ERT.
+The following is a set of guidelines for contributing to STEA.
 
 ## Ground Rules
 
@@ -26,12 +26,3 @@ We expect commit messages to follow the style described [here](https://chris.bea
 1. When all tests have passed and your are happy with your changes, change your pull request to "ready for review"
    and ask for a code review.
 1. When your code has been approved—rebase, squash and merge your changes.
-
-### Build documentation
-
-You can build the documentation after installation by running
-```bash
-pip install -r dev-requirements.txt
-sphinx-build -n -v -E -W ./docs/rst/manual ./tmp/ert_docs
-```
-and then open the generated `./tmp/ert_docs/index.html` in a browser.
