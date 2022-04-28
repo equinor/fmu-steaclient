@@ -8,8 +8,11 @@ def date_string(dt):
     return dt.strftime("%Y-%m-%dT%H:%M:%S")
 
 
+BARRELS_PR_SM3 = 6.2898
+
+
 class SteaRequest(object):
-    units = {"Bbl": {"SM3": 1.0 / 6.2898}, "Sm3": {"SM3": 1.0}}
+    units = {"Bbl": {"SM3": BARRELS_PR_SM3}, "Sm3": {"SM3": 1.0}}
 
     scale_factors = {"1": 1.0, "Mill": 1.0e-6, "1000 Mill": 1.0e-9}
 

@@ -1,20 +1,26 @@
-import pytest
 import datetime
+import os
+import pathlib
+
+import pytest
 import requests
+import yaml
+from ecl.summary import EclSum
+from ecl.util.test import TestAreaContext
+from ecl.util.test.ecl_mock import createEclSum
 from requests.exceptions import ConnectionError
+
 from stea import (
-    calculate,
     SteaClient,
-    SteaRequest,
-    SteaProject,
     SteaInput,
     SteaInputKeys,
     SteaKeys,
+    SteaProject,
+    SteaRequest,
     SteaResult,
+    calculate,
 )
-
-from ecl.util.test.ecl_mock import createEclSum
-from ecl.util.test import TestAreaContext
+from stea.stea_request import BARRELS_PR_SM3
 
 test_server = "https://st-w4771.statoil.net"
 
@@ -140,6 +146,57 @@ def test_project():
     assert "unit1" == project.get_profile_unit("ID1")
     assert "Mill" == project.get_profile_mult("ID1")
     assert project.get_profile_mult("ID2") == "1"
+
+
+@pytest.mark.parametrize(
+    "ecl_unit, project_unit, scale_factor, expected_fopt0",
+    [
+        ("SM3", "Sm3", "Mill", fopr(0) * 365 / 1e6),
+        ("SM3", "Bbl", "Mill", fopr(0) * 365 / 1e6 * BARRELS_PR_SM3),
+        ("bogus", "Sm3", "Mill", fopr(0) * 365 / 1e6),
+        ("SM3", "bogus", "Mill", fopr(0) * 365 / 1e6),
+        ("SM3", "Sm3", "1", fopr(0) * 365),
+        ("Bogus", "Sm3", "1", fopr(0) * 365),
+        ("SM3", "Bbl", "1", fopr(0) * 365 * BARRELS_PR_SM3),
+        ("SM3", "Sm3", "1000 Mill", fopr(0) * 365 / 1e9),
+        ("SM3", "Bbl", "1000 Mill", fopr(0) * 365 / 1e9 * BARRELS_PR_SM3),
+    ],
+)
+def test_units_and_scale_factor(
+    tmpdir, ecl_unit, project_unit, scale_factor, expected_fopt0
+):
+    """STEA-project units in bbl, Eclipse units in sm3"""
+    os.chdir(tmpdir)
+    config = {
+        SteaInputKeys.CONFIG_DATE: datetime.datetime(2018, 10, 10, 12, 0, 0),
+        SteaInputKeys.PROJECT_ID: 1234,
+        SteaInputKeys.PROJECT_VERSION: 1,
+        SteaInputKeys.ECL_PROFILES: {
+            "ID1": {SteaInputKeys.ECL_KEY: "FOPT"},
+            # (units are not to be specified here)
+        },
+        SteaInputKeys.RESULTS: ["npv"],
+        SteaInputKeys.ECL_CASE: "CSV",
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+
+    # Mock ECL binary output files:
+    case: EclSum = create_case()
+    case.fwrite()
+
+    stea_input = SteaInput(["config_file"])
+    project = mock_project
+    mock_project.profiles["ID1"]["Unit"] = project_unit
+    mock_project.profiles["ID1"]["Multiple"] = scale_factor
+
+    request = SteaRequest(stea_input, project)
+    # Populate profiles from EclSum case:
+    request.add_ecl_profile("ID1", "FOPT")
+
+    pytest.approx(
+        request.request_data["Adjustments"]["Profiles"][0]["Data"]["Data"][0],
+        expected_fopt0,
+    )
 
 
 def test_config():
