@@ -15,19 +15,16 @@ class SteaClient(object):
         self.server = server
 
     def get_project(self, project_id, project_version, config_date):
-        url = "{server}/api/v1/Alternative/{project_id}/{project_version}/summary?ConfigurationDate={config_date}".format(
-            server=self.server,
-            project_id=project_id,
-            project_version=project_version,
-            config_date=date_string(config_date),
+        url = (
+            f"{self.server}/api/v1/Alternative/{project_id}/{project_version}/"
+            f"summary?ConfigurationDate={date_string(config_date)}"
         )
         try:
             response = requests.get(url, verify=False)
             if not response.status_code == requests.codes.ok:
                 raise HTTPError(
-                    "Could not GET from: {url}  status: {status} msg: {text}".format(
-                        url=url, status=response.status_code, text=response.text
-                    )
+                    f"Could not GET from: {url}  "
+                    f"status: {response.status_code} msg: {response.text}"
                 )
         except RequestException as e:
             raise RuntimeError(

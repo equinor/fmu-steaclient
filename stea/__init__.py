@@ -53,14 +53,13 @@ except ImportError:
     __version__ = "0.0.0"
 
 
-from .stea_keys import SteaKeys
-from .stea_keys import SteaInputKeys
 from .stea_client import SteaClient
-from .stea_project import SteaProject
+from .stea_config import _build_schema  # noqa
+from .stea_input import SteaInput  # noqa
+from .stea_keys import SteaInputKeys, SteaKeys  # noqa
+from .stea_project import SteaProject  # noqa
 from .stea_request import SteaRequest
-from .stea_input import SteaInput
 from .stea_result import SteaResult
-from .stea_config import _build_schema
 
 
 def calculate(stea_input):
@@ -71,7 +70,7 @@ def calculate(stea_input):
     request = SteaRequest(stea_input, project)
 
     for profile_id, profile_data in stea_input.ecl_profiles:
-        if not profile_id in project.profiles:
+        if profile_id not in project.profiles:
             profile_list = [
                 k
                 for k, v in project.profiles.items()
@@ -100,7 +99,7 @@ def calculate(stea_input):
                 )
 
     for profile_id, profile_data in stea_input.profiles:
-        if not profile_id in project.profiles:
+        if profile_id not in project.profiles:
             profile_list = [
                 k
                 for k, v in project.profiles.items()

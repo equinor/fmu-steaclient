@@ -8,7 +8,6 @@ import yaml
 from ecl.summary import EclSum
 from ecl.util.test import TestAreaContext
 from ecl.util.test.ecl_mock import createEclSum
-from requests.exceptions import ConnectionError
 
 from stea import (
     SteaClient,
@@ -142,7 +141,6 @@ def test_project():
     with pytest.raises(KeyError):
         project.get_profile_mult("XYZ_NO_SUCH_PROFILE")
 
-    profile = project.get_profile("ID1")
     assert "unit1" == project.get_profile_unit("ID1")
     assert "Mill" == project.get_profile_mult("ID1")
     assert project.get_profile_mult("ID2") == "1"
@@ -202,7 +200,7 @@ def test_units_and_scale_factor(
 def test_config():
     with TestAreaContext("stea_main"):
         with pytest.raises(IOError):
-            cnf = SteaInput(["File/does/not/exist"])
+            SteaInput(["File/does/not/exist"])
 
         # An invalid YAML file:
         with open("config_file", "w") as f:
@@ -210,7 +208,7 @@ def test_config():
             f.write("    key: value :\n")
 
         with pytest.raises(ValueError):
-            stea_main = SteaInput(["config_file"])
+            SteaInput(["config_file"])
 
         with open("config_file", "w") as f:
             f.write("{}: 2018-10-10 12:00:00\n".format(SteaInputKeys.CONFIG_DATE))
@@ -238,7 +236,7 @@ def test_config():
             f.write("{}: No-not-a-date".format(SteaInputKeys.CONFIG_DATE))
 
         with pytest.raises(ValueError):
-            stea_main = SteaInput(["config_file"])
+            SteaInput(["config_file"])
 
 
 def test_input_argv():
@@ -258,15 +256,11 @@ def test_input_argv():
             f.write("   - npv\n")
 
         with pytest.raises(IOError):
-            stea_input = SteaInput(
-                ["config_file", "--{}=CSV".format(SteaInputKeys.ECL_CASE)]
-            )
+            SteaInput(["config_file", "--{}=CSV".format(SteaInputKeys.ECL_CASE)])
 
         case = create_case()
         case.fwrite()
-        stea_input = SteaInput(
-            ["config_file", "--{}=CSV".format(SteaInputKeys.ECL_CASE)]
-        )
+        SteaInput(["config_file", "--{}=CSV".format(SteaInputKeys.ECL_CASE)])
 
 
 def test_request1():
