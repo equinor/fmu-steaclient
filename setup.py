@@ -18,7 +18,10 @@ setup(
         "Environment :: Plugins",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+        (
+            "License :: OSI Approved :: "
+            "GNU Lesser General Public License v3 or later (LGPLv3+)"
+        ),
         "Natural Language :: English",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",

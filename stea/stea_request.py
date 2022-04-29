@@ -1,7 +1,6 @@
 import datetime
-import types
 import sys
-from .stea_keys import SteaInputKeys, SteaKeys
+from .stea_keys import SteaKeys
 
 
 def date_string(dt):
