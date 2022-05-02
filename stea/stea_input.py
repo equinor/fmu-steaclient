@@ -6,6 +6,7 @@ import configsuite
 import yaml
 
 from .stea_config import _build_schema
+from .stea_keys import SteaKeys
 
 try:
     from ecl.summary import EclSum
@@ -44,7 +45,7 @@ class SteaInput:
 
         try:
             schema = _build_schema()
-            defaults = {"stea_server": "https://ws2291.statoil.net"}
+            defaults = {"stea_server": SteaKeys.PRODUCTION_SERVER}
             with open(args.config_file, "r", encoding="utf-8") as config_file:
                 config_dict = yaml.safe_load(config_file)
 

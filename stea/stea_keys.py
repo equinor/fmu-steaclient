@@ -1,9 +1,12 @@
 # pylint: disable=too-few-public-methods
+
+
 class SteaKeys:
     """The SteaKeys class contains string constants which are used in HTTP
     communication with the stea web service.
     """
 
+    PRODUCTION_SERVER = "stea-fmu.equinor.com"
     PROJECT_VERSION = "AlternativeVersion"
     PROJECT_ID = "AlternativeId"
     PROFILES = "Profiles"
