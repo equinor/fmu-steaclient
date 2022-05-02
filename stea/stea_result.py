@@ -1,7 +1,8 @@
 from .stea_keys import SteaKeys
 
 
-class SteaResult(object):
+class SteaResult:
+    # pylint: disable=too-few-public-methods
     def __init__(self, data, stea_input):
         self.data = data
         self.stea_input = stea_input
@@ -15,4 +16,4 @@ class SteaResult(object):
 
                 return res
 
-        raise KeyError("No such tax mode: {}".format(tax_mode))
+        raise KeyError(f"No such tax mode: {tax_mode}")

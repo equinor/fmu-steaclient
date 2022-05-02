@@ -13,7 +13,7 @@ def _fix_keys(elem):
     fix_dict = {}
     for key in elem:
         new_key = str(key).replace("-", "_")
-        print("Replacing {} with {}".format(key, new_key))
+        print(f"Replacing {key} with {new_key}")
         fix_dict[new_key] = elem.get(key)
     return fix_dict
 

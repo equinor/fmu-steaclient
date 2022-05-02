@@ -1,10 +1,11 @@
-from argparse import ArgumentParser
-import os.path
 import datetime
-import yaml
-import configsuite
-from .stea_config import _build_schema
+import os.path
+from argparse import ArgumentParser
 
+import configsuite
+import yaml
+
+from .stea_config import _build_schema
 
 try:
     from ecl.summary import EclSum
@@ -25,20 +26,26 @@ def parse_date(date_input):
 def parse_args(argv):
     parser = ArgumentParser()
     parser.add_argument("config_file")
-    parser.add_argument("--{}".format("ecl_case"), dest="ecl_case")
+    parser.add_argument(
+        "--ecl_case",
+        type=str,
+        help="If supplied, it will overwrite any ecl_case supplied in the config file",
+    )
     return parser.parse_args(argv)
 
 
-class SteaInput(object):
+class SteaInput:
+    # pylint: disable=too-few-public-methods
     def __init__(self, argv):
         args = parse_args(argv)
+
         if not os.path.isfile(args.config_file):
-            raise IOError("No such file:{}".format(args.config_file))
+            raise IOError(f"No such file: {args.config_file}")
 
         try:
             schema = _build_schema()
             defaults = {"stea_server": "https://ws2291.statoil.net"}
-            with open(args.config_file, "r") as config_file:
+            with open(args.config_file, "r", encoding="utf-8") as config_file:
                 config_dict = yaml.safe_load(config_file)
 
                 if args.ecl_case:
@@ -53,20 +60,19 @@ class SteaInput(object):
 
             if not config.valid:
                 raise ValueError(
-                    "Config file is not a valid config file: {}".format(config.errors)
+                    f"Config file is not a valid config file: {config.errors}"
                 )
 
             self.config = config
 
         except Exception as ex:
-            raise ValueError(
-                "Could not load config file: {file}\nFull message: {ex}".format(
-                    file=args.config_file, ex=ex
-                )
-            )
+            raise ValueError(f"Could not load config file: {args.config_file}") from ex
 
+        # pylint: disable=access-member-before-definition
+        # (due to modified __getattr__)
         if self.ecl_case is not None:
             self.ecl_case = EclSum(self.ecl_case)
 
     def __getattr__(self, key):
+        """Make all values in the config available as object attributes"""
         return self.config.snapshot.__getattribute__(key)

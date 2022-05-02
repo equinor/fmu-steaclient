@@ -1,7 +1,7 @@
 """
 Small client which can call the Stea web service to perform economic analysis.
 
-Stea is a Statoil application to perform economic analysis. The application is
+Stea is an Equinor application to perform economic analysis. The application is
 an interactive windows application. In addition to the desktop application
 there is a server solution for storage of projects and calculations service.
 The purpose of this Python package is to invoke a Stea economic analysis on the

@@ -1,4 +1,5 @@
-class SteaKeys(object):
+# pylint: disable=too-few-public-methods
+class SteaKeys:
     """The SteaKeys class contains string constants which are used in HTTP
     communication with the stea web service.
     """
@@ -25,7 +26,7 @@ class SteaKeys(object):
     CORPORATE = "Corporate"
 
 
-class SteaInputKeys(object):
+class SteaInputKeys:
     """The SteaInputKeys contains string constants used as keys in the
     configuration file used by the local stea client.
     """

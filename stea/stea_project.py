@@ -1,7 +1,7 @@
 from .stea_keys import SteaKeys
 
 
-class SteaProject(object):
+class SteaProject:
     def __init__(self, data):
         self.profiles = {
             profile[SteaKeys.PROFILE_ID]: profile for profile in data[SteaKeys.PROFILES]
