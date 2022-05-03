@@ -29,7 +29,7 @@ def parse_args(argv):
     parser.add_argument("config_file")
     parser.add_argument(
         "--ecl_case",
-        type=str,
+        # Do not set type=str here, it will break.
         help="If supplied, it will overwrite any ecl_case supplied in the config file",
     )
     return parser.parse_args(argv)
