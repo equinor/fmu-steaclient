@@ -191,9 +191,11 @@ def test_units_and_scale_factor(
     # Populate profiles from EclSum case:
     request.add_ecl_profile("ID1", "FOPT")
 
-    pytest.approx(
-        request.request_data["Adjustments"]["Profiles"][0]["Data"]["Data"][0],
-        expected_fopt0,
+    assert (
+        pytest.approx(
+            request.request_data["Adjustments"]["Profiles"][0]["Data"]["Data"][0]
+        )
+        == expected_fopt0
     )
 
 
@@ -405,7 +407,7 @@ def test_mult(set_up):
     res = results.results(SteaKeys.CORPORATE)
     assert len(res) == 1
     assert "NPV" in res
-    assert pytest.approx(536.1371967150193, res["NPV"])
+    assert pytest.approx(res["NPV"]) == 536.1371967150193
 
 
 @pytest.mark.skipif(not online(), reason="Must be on Equinor network")
@@ -432,4 +434,4 @@ def test_desc(set_up):
     res = results.results(SteaKeys.CORPORATE)
     assert len(res) == 1
     assert "NPV" in res
-    assert pytest.approx(536.1371967150193, res["NPV"])
+    assert pytest.approx(res["NPV"]) == 536.1371967150193
