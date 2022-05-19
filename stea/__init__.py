@@ -62,11 +62,7 @@ from .stea_request import SteaRequest
 from .stea_result import SteaResult
 
 
-def calculate(stea_input):
-    client = SteaClient(stea_input.stea_server)
-    project = client.get_project(
-        stea_input.project_id, stea_input.project_version, stea_input.config_date
-    )
+def make_request(stea_input: SteaInput, project: SteaProject) -> SteaRequest:
     request = SteaRequest(stea_input, project)
 
     for profile_id, profile_data in stea_input.ecl_profiles:
@@ -112,5 +108,13 @@ def calculate(stea_input):
             data = profile_data.data
             for pid in profile_list:
                 request.add_profile(pid, start_year, data)
+    return request
 
+
+def calculate(stea_input):
+    client = SteaClient(stea_input.stea_server)
+    project = client.get_project(
+        stea_input.project_id, stea_input.project_version, stea_input.config_date
+    )
+    request = make_request(stea_input, project)
     return SteaResult(client.calculate(request), stea_input)
