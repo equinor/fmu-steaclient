@@ -1,6 +1,7 @@
 import datetime
 import os
 import pathlib
+from contextlib import ExitStack as does_not_raise
 
 import pytest
 import requests
@@ -201,6 +202,75 @@ def test_units_and_scale_factor(
         )
         == expected_fopt0
     )
+
+
+@pytest.mark.parametrize(
+    "start_year, end_year, expected_final_fopt, expectation",
+    [
+        # The mocked EclSum object contains data every tenth date from
+        # 2010-01-01 and onwards for 1000 days. The 990th dah is 2012-09-17.
+        # There is no data for the 1000th day, so when summing FOPT, the FOPR
+        # for the last entry is not accounted for, thus we end with 990 as the
+        # final FOPT. FOPR is 1 for all days.
+        pytest.param(None, None, 990, does_not_raise(), id="no_start_nor_end"),
+        pytest.param(2010, None, 990, does_not_raise(), id="start_same_as_profile"),
+        pytest.param(2000, 2013, 990, does_not_raise(), id="start_prior_to_profile"),
+        pytest.param(2010, 2013, 990, does_not_raise(), id="start_end_same_as_profile"),
+        pytest.param(2011, 2013, 990 - 365, does_not_raise(), id="crop_at_start"),
+        pytest.param(
+            2012, 2013, 990 - 2 * 365, does_not_raise(), id="crop_more_at_start"
+        ),
+        pytest.param(
+            2013,
+            2013,
+            None,
+            pytest.raises(ValueError, match="Invalid time interval start after end"),
+            id="start_after_profile",
+        ),
+        pytest.param(2010, 2012, 990, does_not_raise(), id="end_year_is_inclusive"),
+        pytest.param(2010, 2011, 2 * 365, does_not_raise(), id="crop_from_end"),
+        pytest.param(2010, 2010, 365, does_not_raise(), id="crop_more_from_end"),
+        pytest.param(
+            2010,
+            2009,
+            None,
+            pytest.raises(ValueError, match="Invalid time interval start after end"),
+            id="end_before_profile",
+        ),
+    ],
+)
+def test_start_year_end_year(
+    start_year, end_year, expected_final_fopt, expectation, tmpdir, mock_project
+):
+    os.chdir(tmpdir)
+    config = {
+        SteaInputKeys.CONFIG_DATE: datetime.datetime(2018, 10, 10, 12, 0, 0),
+        SteaInputKeys.PROJECT_ID: 1234,
+        SteaInputKeys.PROJECT_VERSION: 1,
+        SteaInputKeys.ECL_PROFILES: {
+            "ID1": {
+                SteaInputKeys.ECL_KEY: "FOPT",
+                SteaInputKeys.START_YEAR: start_year,
+                SteaInputKeys.END_YEAR: end_year,  # NB: None here gives 'null' in yaml
+            }
+        },
+        SteaInputKeys.RESULTS: ["npv"],
+        SteaInputKeys.ECL_CASE: "CSV",
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    # Mock ECL binary output files:
+    case: EclSum = create_case()
+    case.fwrite()
+    stea_input = SteaInput(["config_file"])
+    with expectation:
+        request = make_request(stea_input, mock_project)
+        assert (
+            pytest.approx(
+                sum(request.request_data["Adjustments"]["Profiles"][0]["Data"]["Data"])
+                * 1e6
+            )
+            == expected_final_fopt
+        )
 
 
 def test_config():
