@@ -1,8 +1,9 @@
 import copy
-import yaml
-import pytest
-
 from datetime import datetime
+
+import pytest
+import yaml
+
 from stea import stea_input
 
 
@@ -12,8 +13,8 @@ def use_tmpdir(tmpdir):
         yield
 
 
-def remove_key(d, key):
-    invalid_dict = copy.copy(d)
+def remove_key(orig_dict, key):
+    invalid_dict = copy.copy(orig_dict)
     invalid_dict.pop(key)
     return invalid_dict
 
@@ -26,7 +27,7 @@ def remove_key(d, key):
         None,
     ],
 )
-def test_minimal_config(ecl_case, tmpdir, mocker, monkeypatch):
+def test_minimal_config(ecl_case, mocker, monkeypatch):
     valid_config = {
         "config_date": datetime(2018, 10, 10, 12, 0),
         "project_id": 1234,
@@ -45,7 +46,7 @@ def test_minimal_config(ecl_case, tmpdir, mocker, monkeypatch):
     argv = mocker.Mock(return_value=args)
     monkeypatch.setattr(stea_input, "parse_args", argv)
 
-    with open("config_file.yml", "w") as fout:
+    with open("config_file.yml", "w", encoding="utf-8") as fout:
         yaml.dump(valid_config, fout)
 
     stea_input.SteaInput("something")
@@ -81,7 +82,7 @@ def test_invalid_config(required_key, mocker, monkeypatch):
     argv = mocker.Mock(return_value=args)
     monkeypatch.setattr(stea_input, "parse_args", argv)
 
-    with open("config_file.yml", "w") as fout:
+    with open("config_file.yml", "w", encoding="utf-8") as fout:
         yaml.dump(invalid_dict, fout)
 
     with pytest.raises(ValueError):

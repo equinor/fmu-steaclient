@@ -8,7 +8,6 @@ import requests
 import urllib3
 import yaml
 from ecl.summary import EclSum
-from ecl.util.test import TestAreaContext
 from ecl.util.test.ecl_mock import createEclSum
 
 from stea import (
@@ -16,7 +15,6 @@ from stea import (
     SteaInput,
     SteaInputKeys,
     SteaKeys,
-    SteaProject,
     SteaRequest,
     SteaResult,
     calculate,
@@ -24,44 +22,12 @@ from stea import (
 )
 from stea.stea_request import BARRELS_PR_SM3
 
-test_server = "https://st-w4771.statoil.net"
+# pylint: disable=too-many-arguments
+
+TEST_SERVER = "https://st-w4771.statoil.net"
 
 
-@pytest.fixture
-def mock_project():
-    return SteaProject(
-        {
-            SteaKeys.PROFILES: [
-                {
-                    SteaKeys.PROFILE_ID: "ID1",
-                    SteaKeys.UNIT: "unit1",
-                    SteaKeys.MULTIPLE: "Mill",
-                },
-                {SteaKeys.PROFILE_ID: "ID2", SteaKeys.UNIT: "unit2"},
-            ],
-            SteaKeys.PROJECT_ID: "project-id",
-            SteaKeys.PROJECT_VERSION: "100",
-        }
-    )
-
-
-mock_result = {
-    SteaKeys.KEY_VALUES: [
-        {SteaKeys.TAX_MODE: SteaKeys.PRETAX, SteaKeys.VALUES: {"NPV": 123}},
-        {SteaKeys.TAX_MODE: SteaKeys.CORPORATE, SteaKeys.VALUES: {"NPV": 456}},
-    ]
-}
-
-
-class SteaMockClient(object):
-    def __init__(self, server):
-        pass
-
-    def get_project(self, project_id, project_version, config_date):
-        return mock_project()
-
-
-def fopr(days):
+def fopr(_days):
     return 1
 
 
@@ -72,8 +38,7 @@ def fopt(days):
 def fgpt(days):
     if days < 50:
         return days
-    else:
-        return 100 - days
+    return 100 - days
 
 
 def create_case(case="CSV", restart_case=None, restart_step=-1, data_start=None):
@@ -102,22 +67,23 @@ def online():
         requests.packages.urllib3.disable_warnings(
             category=urllib3.exceptions.InsecureRequestWarning
         )
-        requests.get(test_server, verify=False)
+        requests.get(TEST_SERVER, verify=False)
         return True
     except requests.exceptions.ConnectionError:
         return False
 
 
-@pytest.fixture()
-def set_up():
+@pytest.fixture(name="set_up")
+def fixture_set_up():
     class Stea:
+        # pylint: disable=too-few-public-methods
         def __init__(self):
             self.project_id = 4872
             self.project_version = 3
             self.config_date = datetime.datetime(2018, 6, 26, 11, 0, 0)
             self.fopt_profile_id = "28558281-b82d-42a2-88a5-ba8e3e7d150d"
             self.fopt_profile_id_desc = "FOPT"
-            self.test_server = test_server
+            self.test_server = TEST_SERVER
             if online():
                 self.client = SteaClient(self.test_server)
             else:
@@ -126,36 +92,28 @@ def set_up():
     yield Stea()
 
 
-def test_project():
-    payload = {
-        SteaKeys.PROFILES: [
-            {
-                SteaKeys.PROFILE_ID: "ID1",
-                SteaKeys.UNIT: "unit1",
-                SteaKeys.MULTIPLE: "Mill",
-            },
-            {SteaKeys.PROFILE_ID: "ID2", SteaKeys.UNIT: "unit2"},
-        ],
-        SteaKeys.PROJECT_ID: "project-id",
-        SteaKeys.PROJECT_VERSION: "100",
-    }
+class SteaMockClient:
+    # pylint: disable=too-few-public-methods
+    def __init__(self, servername: str):
+        pass
 
-    project = SteaProject(payload)
-    assert project.has_profile("ID1")
-    assert not project.has_profile("ID0")
+
+def test_project(mock_project):
+    assert mock_project.has_profile("ID1")
+    assert not mock_project.has_profile("ID0")
 
     with pytest.raises(KeyError):
-        project.get_profile("XYZ_NO_SUCH_PROFILE")
+        mock_project.get_profile("XYZ_NO_SUCH_PROFILE")
 
     with pytest.raises(KeyError):
-        project.get_profile_unit("XYZ_NO_SUCH_PROFILE")
+        mock_project.get_profile_unit("XYZ_NO_SUCH_PROFILE")
 
     with pytest.raises(KeyError):
-        project.get_profile_mult("XYZ_NO_SUCH_PROFILE")
+        mock_project.get_profile_mult("XYZ_NO_SUCH_PROFILE")
 
-    assert "unit1" == project.get_profile_unit("ID1")
-    assert "Mill" == project.get_profile_mult("ID1")
-    assert project.get_profile_mult("ID2") == "1"
+    assert "unit1" == mock_project.get_profile_unit("ID1")
+    assert "Mill" == mock_project.get_profile_mult("ID1")
+    assert mock_project.get_profile_mult("ID2") == "1"
 
 
 @pytest.mark.parametrize(
@@ -189,6 +147,8 @@ def test_units_and_scale_factor(
         SteaInputKeys.ECL_CASE: "CSV",
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+
+    assert ecl_unit  # pylint
 
     # Mock ECL binary output files:
     case: EclSum = create_case()
@@ -248,6 +208,7 @@ def test_units_and_scale_factor(
 def test_start_year_end_year(
     start_year, end_year, expected_final_fopt, expectation, tmpdir, mock_project
 ):
+
     os.chdir(tmpdir)
     config = {
         SteaInputKeys.CONFIG_DATE: datetime.datetime(2018, 10, 10, 12, 0, 0),
@@ -279,171 +240,171 @@ def test_start_year_end_year(
         )
 
 
-def test_config():
-    with TestAreaContext("stea_main"):
-        with pytest.raises(IOError):
-            SteaInput(["File/does/not/exist"])
-
-        # An invalid YAML file:
-        with open("config_file", "w") as f:
-            f.write("object:\n")
-            f.write("    key: value :\n")
-
-        with pytest.raises(ValueError):
-            SteaInput(["config_file"])
-
-        with open("config_file", "w") as f:
-            f.write("{}: 2018-10-10 12:00:00\n".format(SteaInputKeys.CONFIG_DATE))
-            f.write("{}: 1234\n".format(SteaInputKeys.PROJECT_ID))
-            f.write("{}: 1\n".format(SteaInputKeys.PROJECT_VERSION))
-
-            f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
-            f.write("   ID1: \n")
-            f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("   ID2: \n")
-            f.write("      {}: FGPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("{}: \n".format(SteaInputKeys.RESULTS))
-            f.write("   - npv\n")
-
-        stea_input = SteaInput(["config_file"])
-        assert stea_input.config_date == datetime.datetime(2018, 10, 10, 12, 0, 0)
-        assert stea_input.project_id == 1234
-        assert stea_input.project_version == 1
-        assert 2 == len(stea_input.ecl_profiles)
-        keys = [key[0] for key in stea_input.ecl_profiles]
-        assert "ID1" in keys
-        assert "ID2" in keys
-
-        with open("config_file", "w") as f:
-            f.write("{}: No-not-a-date".format(SteaInputKeys.CONFIG_DATE))
-
-        with pytest.raises(ValueError):
-            SteaInput(["config_file"])
+def test_config_not_exists(tmpdir):
+    os.chdir(tmpdir)
+    with pytest.raises(IOError):
+        SteaInput(["File/does/not/exist"])
 
 
-def test_input_argv():
-    with TestAreaContext("stea_input_argv"):
+def test_config_invalid_file(tmpdir):
+    os.chdir(tmpdir)
+    with open("config_file", "w", encoding="utf-8") as fout:
+        fout.write("object:\n")
+        fout.write("    key: value :\n")
 
-        with open("config_file", "w") as f:
-            f.write("{}: 2018-10-10 12:00:00\n".format(SteaInputKeys.CONFIG_DATE))
-            f.write("{}: 1234\n".format(SteaInputKeys.PROJECT_ID))
-            f.write("{}: 1\n".format(SteaInputKeys.PROJECT_VERSION))
-
-            f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
-            f.write("   ID1: \n")
-            f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("   ID2: \n")
-            f.write("      {}: FGPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("{}: \n".format(SteaInputKeys.RESULTS))
-            f.write("   - npv\n")
-
-        with pytest.raises(IOError):
-            SteaInput(["config_file", "--{}=CSV".format(SteaInputKeys.ECL_CASE)])
-
-        case = create_case()
-        case.fwrite()
-        SteaInput(["config_file", "--{}=CSV".format(SteaInputKeys.ECL_CASE)])
+    with pytest.raises(ValueError):
+        SteaInput(["config_file"])
 
 
-def test_request1(mock_project):
-    with TestAreaContext("stea_request"):
-        with open("config_file", "w") as f:
-            f.write("{}: 2018-10-10 12:00:00\n".format(SteaInputKeys.CONFIG_DATE))
-            f.write("{}: 1234\n".format(SteaInputKeys.PROJECT_ID))
-            f.write("{}: 1\n".format(SteaInputKeys.PROJECT_VERSION))
-
-            f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
-            f.write("   ID1: \n")
-            f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("   ID2: \n")
-            f.write("      {}: FGPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("{}: \n".format(SteaInputKeys.RESULTS))
-            f.write("   - npv\n")
-
-        stea_input = SteaInput(["config_file"])
-
-        case = create_case()
-        case.fwrite()
-        request = SteaRequest(stea_input, mock_project)
-        with pytest.raises(KeyError):
-            request.add_profile("no-such-id", 2018, [0, 1, 2])
-
-        with pytest.raises(ValueError):
-            request.add_ecl_profile("ID1", "FOPT")
+def test_config(tmpdir):
+    os.chdir(tmpdir)
+    config = {
+        SteaInputKeys.CONFIG_DATE: datetime.datetime(2018, 10, 10, 12, 0, 0),
+        SteaInputKeys.PROJECT_ID: 1234,
+        SteaInputKeys.PROJECT_VERSION: 1,
+        SteaInputKeys.ECL_PROFILES: {
+            "ID1": {SteaInputKeys.ECL_KEY: "FOPT"},
+            "ID2": {SteaInputKeys.ECL_KEY: "FGPT"},
+        },
+        SteaInputKeys.RESULTS: ["npv"],
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    stea_input = SteaInput(["config_file"])
+    assert stea_input.config_date == datetime.datetime(2018, 10, 10, 12, 0, 0)
+    assert stea_input.project_id == 1234
+    assert stea_input.project_version == 1
+    assert 2 == len(stea_input.ecl_profiles)
+    keys = [key[0] for key in stea_input.ecl_profiles]
+    assert "ID1" in keys
+    assert "ID2" in keys
 
 
-def test_request2(mock_project):
-    with TestAreaContext("stea_request"):
-        case = create_case()
-        case.fwrite()
-        with open("config_file", "w") as f:
-            f.write("{}: 2018-10-10 12:00:00\n".format(SteaInputKeys.CONFIG_DATE))
-            f.write("{}: 1234\n".format(SteaInputKeys.PROJECT_ID))
-            f.write("{}: 1\n".format(SteaInputKeys.PROJECT_VERSION))
+def test_config_invalid_date(tmpdir):
+    os.chdir(tmpdir)
+    with open("config_file", "w", encoding="utf-8") as fout:
+        fout.write(f"{SteaInputKeys.CONFIG_DATE}: No-not-a-date")
 
-            f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
-            f.write("   ID1: \n")
-            f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("   ID2: \n")
-            f.write("      {}: FGPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("{}: \n".format(SteaInputKeys.RESULTS))
-            f.write("   - npv\n")
-            f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
+    with pytest.raises(ValueError):
+        SteaInput(["config_file"])
 
-        stea_input = SteaInput(["config_file"])
-        request = SteaRequest(stea_input, mock_project)
 
-        with pytest.raises(KeyError):
-            request.add_ecl_profile("ID1", "NO-SUCH-KEY")
+def test_input_argv(tmpdir):
+    os.chdir(tmpdir)
+    config = {
+        SteaInputKeys.CONFIG_DATE: datetime.datetime(2018, 10, 10, 12, 0, 0),
+        SteaInputKeys.PROJECT_ID: 1234,
+        SteaInputKeys.PROJECT_VERSION: 1,
+        SteaInputKeys.ECL_PROFILES: {
+            "ID1": {SteaInputKeys.ECL_KEY: "FOPT"},
+            "ID2": {SteaInputKeys.ECL_KEY: "FGPT"},
+        },
+        SteaInputKeys.RESULTS: ["npv"],
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-        with pytest.raises(KeyError):
-            request.add_ecl_profile("INVALID-ID", "FOPT")
+    with pytest.raises(IOError):
+        SteaInput(["config_file", f"--{SteaInputKeys.ECL_CASE}=CSV"])
+
+    case = create_case()
+    case.fwrite()
+    SteaInput(["config_file", f"--{SteaInputKeys.ECL_CASE}=CSV"])
+
+
+def test_request1(tmpdir, mock_project):
+    os.chdir(tmpdir)
+    config = {
+        SteaInputKeys.CONFIG_DATE: datetime.datetime(2018, 10, 10, 12, 0, 0),
+        SteaInputKeys.PROJECT_ID: 1234,
+        SteaInputKeys.PROJECT_VERSION: 1,
+        SteaInputKeys.ECL_PROFILES: {
+            "ID1": {SteaInputKeys.ECL_KEY: "FOPT"},
+            "ID2": {SteaInputKeys.ECL_KEY: "FGPT"},
+        },
+        SteaInputKeys.RESULTS: ["npv"],
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+
+    stea_input = SteaInput(["config_file"])
+    case = create_case()
+    case.fwrite()
+    request = SteaRequest(stea_input, mock_project)
+    with pytest.raises(KeyError, match="Invalid profile id"):
+        request.add_profile("no-such-id", 2018, [0, 1, 2])
+
+    with pytest.raises(
+        ValueError, match="When adding ecl_profile you must configure an Eclipse case"
+    ):
+        request.add_ecl_profile("ID1", "FOPT")
+
+
+def test_request2(tmpdir, mock_project):
+    os.chdir(tmpdir)
+    case = create_case()
+    case.fwrite()
+    config = {
+        SteaInputKeys.CONFIG_DATE: datetime.datetime(2018, 10, 10, 12, 0, 0),
+        SteaInputKeys.PROJECT_ID: 1234,
+        SteaInputKeys.PROJECT_VERSION: 1,
+        SteaInputKeys.ECL_PROFILES: {
+            "ID1": {SteaInputKeys.ECL_KEY: "FOPT"},
+            "ID2": {SteaInputKeys.ECL_KEY: "FGPT"},
+        },
+        SteaInputKeys.RESULTS: ["npv"],
+        SteaInputKeys.ECL_CASE: "CSV",
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+
+    stea_input = SteaInput(["config_file"])
+    request = SteaRequest(stea_input, mock_project)
+
+    with pytest.raises(KeyError):
+        request.add_ecl_profile("ID1", "NO-SUCH-KEY")
+
+    with pytest.raises(KeyError):
+        request.add_ecl_profile("INVALID-ID", "FOPT")
 
 
 @pytest.mark.skipif(not online(), reason="Must be on Equinor network")
-def test_calculate(set_up):
-    with TestAreaContext("stea_request"):
-        case = create_case()
-        case.fwrite()
-        with open("config_file", "w") as f:
-            f.write("{}: {}\n".format(SteaInputKeys.CONFIG_DATE, set_up.config_date))
-            f.write("{}: {}\n".format(SteaInputKeys.PROJECT_ID, set_up.project_id))
-            f.write(
-                "{}: {}\n".format(SteaInputKeys.PROJECT_VERSION, set_up.project_version)
-            )
-            f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
-            f.write("   {}: \n".format(set_up.fopt_profile_id))
-            f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("{}: {}\n".format(SteaInputKeys.SERVER, test_server))
-            f.write("{}: \n".format(SteaInputKeys.RESULTS))
-            f.write("   - NPV\n")
-            f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
+def test_calculate(set_up, tmpdir):
+    os.chdir(tmpdir)
+    case = create_case()
+    case.fwrite()
+    config = {
+        SteaInputKeys.CONFIG_DATE: set_up.config_date,
+        SteaInputKeys.PROJECT_ID: set_up.project_id,
+        SteaInputKeys.PROJECT_VERSION: set_up.project_version,
+        SteaInputKeys.ECL_PROFILES: {
+            set_up.fopt_profile_id: {SteaInputKeys.ECL_KEY: "FOPT"},
+        },
+        SteaInputKeys.SERVER: TEST_SERVER,
+        SteaInputKeys.RESULTS: ["NPV"],
+        SteaInputKeys.ECL_CASE: "CSV",
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-        stea_input = SteaInput(["config_file"])
-        results = calculate(stea_input)
-        for res, value in results.results(SteaKeys.CORPORATE).items():
-            print("DBG_TEST {}, {}".format(res, value))
+    stea_input = SteaInput(["config_file"])
+    results = calculate(stea_input)
+    assert pytest.approx(results.results(SteaKeys.CORPORATE)["NPV"]) == 536.137196
 
 
-def test_results(set_up):
-    with TestAreaContext("stea_request"):
-        case = create_case()
-        case.fwrite()
-        with open("config_file", "w") as f:
-            f.write("{}: {}\n".format(SteaInputKeys.CONFIG_DATE, set_up.config_date))
-            f.write("{}: {}\n".format(SteaInputKeys.PROJECT_ID, set_up.project_id))
-            f.write(
-                "{}: {}\n".format(SteaInputKeys.PROJECT_VERSION, set_up.project_version)
-            )
-            f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
-            f.write("   {}: \n".format(set_up.fopt_profile_id))
-            f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("{}: {}\n".format(SteaInputKeys.SERVER, test_server))
-            f.write("{}: \n".format(SteaInputKeys.RESULTS))
-            f.write("   - NPV\n")
-            f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
+def test_results(set_up, tmpdir, mock_result):
+    os.chdir(tmpdir)
+    case = create_case()
+    case.fwrite()
+    config = {
+        SteaInputKeys.CONFIG_DATE: set_up.config_date,
+        SteaInputKeys.PROJECT_ID: set_up.project_id,
+        SteaInputKeys.PROJECT_VERSION: set_up.project_version,
+        SteaInputKeys.ECL_PROFILES: {
+            set_up.fopt_profile_id: {SteaInputKeys.ECL_KEY: "FOPT"},
+        },
+        SteaInputKeys.SERVER: TEST_SERVER,
+        SteaInputKeys.RESULTS: ["NPV"],
+        SteaInputKeys.ECL_CASE: "CSV",
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-        stea_input = SteaInput(["config_file"])
+    stea_input = SteaInput(["config_file"])
 
     result = SteaResult(mock_result, stea_input)
     with pytest.raises(KeyError):
@@ -461,27 +422,28 @@ def test_results(set_up):
 
 
 @pytest.mark.skipif(not online(), reason="Must be on Equinor network")
-def test_mult(set_up):
-    with TestAreaContext("stea_request"):
-        case = create_case()
-        case.fwrite()
-        with open("config_file", "w") as f:
-            f.write("{}: {}\n".format(SteaInputKeys.CONFIG_DATE, set_up.config_date))
-            f.write("{}: {}\n".format(SteaInputKeys.PROJECT_ID, set_up.project_id))
-            f.write(
-                "{}: {}\n".format(SteaInputKeys.PROJECT_VERSION, set_up.project_version)
-            )
-            f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
-            f.write("   {}: \n".format(set_up.fopt_profile_id))
-            f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("      {}: [2,1]\n".format(SteaInputKeys.ECL_MULT))
-            f.write("{}: {}\n".format(SteaInputKeys.SERVER, test_server))
-            f.write("{}: \n".format(SteaInputKeys.RESULTS))
-            f.write("   - NPV\n")
-            f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
+def test_mult(set_up, tmpdir):
+    os.chdir(tmpdir)
+    case = create_case()
+    case.fwrite()
+    config = {
+        SteaInputKeys.CONFIG_DATE: set_up.config_date,
+        SteaInputKeys.PROJECT_ID: set_up.project_id,
+        SteaInputKeys.PROJECT_VERSION: set_up.project_version,
+        SteaInputKeys.ECL_PROFILES: {
+            set_up.fopt_profile_id: {
+                SteaInputKeys.ECL_KEY: "FOPT",
+                SteaInputKeys.ECL_MULT: [2, 1],
+            },
+        },
+        SteaInputKeys.SERVER: TEST_SERVER,
+        SteaInputKeys.RESULTS: ["NPV"],
+        SteaInputKeys.ECL_CASE: "CSV",
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-        stea_input = SteaInput(["config_file"])
-        results = calculate(stea_input)
+    stea_input = SteaInput(["config_file"])
+    results = calculate(stea_input)
     res = results.results(SteaKeys.CORPORATE)
     assert len(res) == 1
     assert "NPV" in res
@@ -489,26 +451,25 @@ def test_mult(set_up):
 
 
 @pytest.mark.skipif(not online(), reason="Must be on Equinor network")
-def test_desc(set_up):
-    with TestAreaContext("stea_request"):
-        case = create_case()
-        case.fwrite()
-        with open("config_file", "w") as f:
-            f.write("{}: {}\n".format(SteaInputKeys.CONFIG_DATE, set_up.config_date))
-            f.write("{}: {}\n".format(SteaInputKeys.PROJECT_ID, set_up.project_id))
-            f.write(
-                "{}: {}\n".format(SteaInputKeys.PROJECT_VERSION, set_up.project_version)
-            )
-            f.write("{}: \n".format(SteaInputKeys.ECL_PROFILES))
-            f.write("   {}: \n".format(set_up.fopt_profile_id_desc))
-            f.write("      {}: FOPT\n".format(SteaInputKeys.ECL_KEY))
-            f.write("{}: {}\n".format(SteaInputKeys.SERVER, test_server))
-            f.write("{}: \n".format(SteaInputKeys.RESULTS))
-            f.write("   - NPV\n")
-            f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
+def test_desc(set_up, tmpdir):
+    os.chdir(tmpdir)
+    case = create_case()
+    case.fwrite()
+    config = {
+        SteaInputKeys.CONFIG_DATE: set_up.config_date,
+        SteaInputKeys.PROJECT_ID: set_up.project_id,
+        SteaInputKeys.PROJECT_VERSION: set_up.project_version,
+        SteaInputKeys.ECL_PROFILES: {
+            set_up.fopt_profile_id_desc: {SteaInputKeys.ECL_KEY: "FOPT"},
+        },
+        SteaInputKeys.SERVER: TEST_SERVER,
+        SteaInputKeys.RESULTS: ["NPV"],
+        SteaInputKeys.ECL_CASE: "CSV",
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-        stea_input = SteaInput(["config_file"])
-        results = calculate(stea_input)
+    stea_input = SteaInput(["config_file"])
+    results = calculate(stea_input)
     res = results.results(SteaKeys.CORPORATE)
     assert len(res) == 1
     assert "NPV" in res
