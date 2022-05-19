@@ -18,25 +18,30 @@ from stea import (
     SteaRequest,
     SteaResult,
     calculate,
+    make_request,
 )
 from stea.stea_request import BARRELS_PR_SM3
 
 test_server = "https://st-w4771.statoil.net"
 
-mock_project = SteaProject(
-    {
-        SteaKeys.PROFILES: [
-            {
-                SteaKeys.PROFILE_ID: "ID1",
-                SteaKeys.UNIT: "unit1",
-                SteaKeys.MULTIPLE: "Mill",
-            },
-            {SteaKeys.PROFILE_ID: "ID2", SteaKeys.UNIT: "unit2"},
-        ],
-        SteaKeys.PROJECT_ID: "project-id",
-        SteaKeys.PROJECT_VERSION: "100",
-    }
-)
+
+@pytest.fixture
+def mock_project():
+    return SteaProject(
+        {
+            SteaKeys.PROFILES: [
+                {
+                    SteaKeys.PROFILE_ID: "ID1",
+                    SteaKeys.UNIT: "unit1",
+                    SteaKeys.MULTIPLE: "Mill",
+                },
+                {SteaKeys.PROFILE_ID: "ID2", SteaKeys.UNIT: "unit2"},
+            ],
+            SteaKeys.PROJECT_ID: "project-id",
+            SteaKeys.PROJECT_VERSION: "100",
+        }
+    )
+
 
 mock_result = {
     SteaKeys.KEY_VALUES: [
@@ -51,7 +56,7 @@ class SteaMockClient(object):
         pass
 
     def get_project(self, project_id, project_version, config_date):
-        return mock_project
+        return mock_project()
 
 
 def fopr(days):
@@ -161,7 +166,7 @@ def test_project():
     ],
 )
 def test_units_and_scale_factor(
-    tmpdir, ecl_unit, project_unit, scale_factor, expected_fopt0
+    tmpdir, ecl_unit, project_unit, scale_factor, expected_fopt0, mock_project
 ):
     """STEA-project units in bbl, Eclipse units in sm3"""
     os.chdir(tmpdir)
@@ -183,11 +188,10 @@ def test_units_and_scale_factor(
     case.fwrite()
 
     stea_input = SteaInput(["config_file"])
-    project = mock_project
     mock_project.profiles["ID1"]["Unit"] = project_unit
     mock_project.profiles["ID1"]["Multiple"] = scale_factor
 
-    request = SteaRequest(stea_input, project)
+    request = SteaRequest(stea_input, mock_project)
     # Populate profiles from EclSum case:
     request.add_ecl_profile("ID1", "FOPT")
 
@@ -265,7 +269,7 @@ def test_input_argv():
         SteaInput(["config_file", "--{}=CSV".format(SteaInputKeys.ECL_CASE)])
 
 
-def test_request1():
+def test_request1(mock_project):
     with TestAreaContext("stea_request"):
         with open("config_file", "w") as f:
             f.write("{}: 2018-10-10 12:00:00\n".format(SteaInputKeys.CONFIG_DATE))
@@ -281,11 +285,10 @@ def test_request1():
             f.write("   - npv\n")
 
         stea_input = SteaInput(["config_file"])
-        project = mock_project
 
         case = create_case()
         case.fwrite()
-        request = SteaRequest(stea_input, project)
+        request = SteaRequest(stea_input, mock_project)
         with pytest.raises(KeyError):
             request.add_profile("no-such-id", 2018, [0, 1, 2])
 
@@ -293,7 +296,7 @@ def test_request1():
             request.add_ecl_profile("ID1", "FOPT")
 
 
-def test_request2():
+def test_request2(mock_project):
     with TestAreaContext("stea_request"):
         case = create_case()
         case.fwrite()
@@ -312,8 +315,7 @@ def test_request2():
             f.write("{}: {}\n".format(SteaInputKeys.ECL_CASE, "CSV"))
 
         stea_input = SteaInput(["config_file"])
-        project = mock_project
-        request = SteaRequest(stea_input, project)
+        request = SteaRequest(stea_input, mock_project)
 
         with pytest.raises(KeyError):
             request.add_ecl_profile("ID1", "NO-SUCH-KEY")
