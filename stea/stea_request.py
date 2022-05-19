@@ -78,7 +78,7 @@ class SteaRequest:
             last_year = end_date.year
 
         start_time = datetime.datetime(first_year, 1, 1)
-        end_time = datetime.datetime(last_year + 1, 1, 1)
+        end_time = datetime.datetime(last_year, 1, 1)
         time_range = case.time_range(start=start_time, end=end_time, interval="1Y")
         ecl_unit = case.unit(key)
 
