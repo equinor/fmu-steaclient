@@ -5,6 +5,7 @@ from contextlib import ExitStack as does_not_raise
 
 import pytest
 import requests
+import urllib3
 import yaml
 from ecl.summary import EclSum
 from ecl.util.test import TestAreaContext
@@ -96,6 +97,11 @@ def create_case(case="CSV", restart_case=None, restart_step=-1, data_start=None)
 
 def online():
     try:
+        # pylint: disable=no-member
+        # https://github.com/PyCQA/pylint/issues/4584
+        requests.packages.urllib3.disable_warnings(
+            category=urllib3.exceptions.InsecureRequestWarning
+        )
         requests.get(test_server, verify=False)
         return True
     except requests.exceptions.ConnectionError:
