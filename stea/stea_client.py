@@ -1,6 +1,7 @@
 import json
 
 import requests
+import urllib3
 from requests import RequestException
 from requests.exceptions import HTTPError
 
@@ -13,6 +14,15 @@ def date_string(timestamp):
 
 class SteaClient:
     def __init__(self, server):
+
+        # Skip certificate verification as the default https_proxy is set to point to
+        # port 80 on-premise, making this warning hard to avoid by other means.
+        # pylint: disable=no-member
+        # https://github.com/PyCQA/pylint/issues/4584
+        requests.packages.urllib3.disable_warnings(
+            category=urllib3.exceptions.InsecureRequestWarning
+        )
+
         self.server = server
 
     def get_project(self, project_id, project_version, config_date):
