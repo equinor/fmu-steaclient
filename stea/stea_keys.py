@@ -44,7 +44,8 @@ class SteaInputKeys:
     ECL_MULT = "mult"
     ECL_GLOB_MULT = "glob_mult"
     SERVER = "stea_server"
-    START_YEAR = "start_year"
+    START_DATE = "start_date"
+    START_YEAR = "start_year"  # Deprecated
     END_YEAR = "end_year"
     PROFILES = "profiles"
     DATA = "data"

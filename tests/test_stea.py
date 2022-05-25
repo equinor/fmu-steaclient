@@ -171,7 +171,109 @@ def test_units_and_scale_factor(
 
 
 @pytest.mark.parametrize(
+    "start_date, start_year, end_year, expected_final_fopt, expectation",
+    [
+        # FOPR is 1 for all days, so the expected total production in these tests
+        # is the day count.
+        pytest.param(None, None, None, 990, does_not_raise(), id="no_start_nor_end"),
+        pytest.param(
+            datetime.date(2010, 1, 1),
+            None,
+            None,
+            990,
+            does_not_raise(),
+            id="start_same_as_profile",
+        ),
+        pytest.param(
+            datetime.date(2010, 1, 2),
+            None,
+            None,
+            989,
+            does_not_raise(),
+            id="crop_one_day",
+        ),
+        pytest.param(
+            datetime.date(2010, 7, 1),
+            None,
+            None,
+            990 - 364 / 2 + 1,
+            does_not_raise(),
+            id="crop_half_year",
+        ),
+        pytest.param(
+            datetime.date(2010, 7, 1),
+            None,
+            2010,
+            364 / 2 + 2,
+            does_not_raise(),
+            id="crop_half_year_and_remaining",
+        ),
+        pytest.param(
+            datetime.date(2010, 12, 31),
+            None,
+            2010,
+            1,
+            does_not_raise(),
+            id="crop_to_one_day",
+        ),
+        pytest.param(
+            datetime.date(2010, 1, 3),
+            2011,
+            None,
+            625,
+            pytest.raises(
+                ValueError,
+                match="Do not provide both start_year and start_date",
+            ),
+            id="ambig_start_year",
+        ),
+    ],
+)
+def test_start_date_end_year(
+    start_date,
+    start_year,
+    end_year,
+    expected_final_fopt,
+    expectation,
+    tmpdir,
+    mock_project,
+):
+
+    os.chdir(tmpdir)
+    config = {
+        SteaInputKeys.CONFIG_DATE: datetime.datetime(2018, 10, 10, 12, 0, 0),
+        SteaInputKeys.PROJECT_ID: 1234,
+        SteaInputKeys.PROJECT_VERSION: 1,
+        SteaInputKeys.ECL_PROFILES: {
+            "ID1": {
+                SteaInputKeys.ECL_KEY: "FOPT",
+                SteaInputKeys.START_DATE: start_date,
+                SteaInputKeys.START_YEAR: start_year,
+                SteaInputKeys.END_YEAR: end_year,  # NB: None here gives 'null' in yaml
+            }
+        },
+        SteaInputKeys.RESULTS: ["npv"],
+        SteaInputKeys.ECL_CASE: "CSV",
+    }
+    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    # Mock ECL binary output files:
+    case: EclSum = create_case()
+    case.fwrite()
+    with expectation:
+        stea_input = SteaInput(["config_file"])
+        request = make_request(stea_input, mock_project)
+        assert (
+            pytest.approx(
+                sum(request.request_data["Adjustments"]["Profiles"][0]["Data"]["Data"])
+                * 1e6
+            )
+            == expected_final_fopt
+        )
+
+
+@pytest.mark.parametrize(
     "start_year, end_year, expected_final_fopt, expectation",
+    # NB: start_year is deprecated in favour of start_date
     [
         # The mocked EclSum object contains data every tenth date from
         # 2010-01-01 and onwards for 1000 days. The 990th dah is 2012-09-17.
@@ -228,8 +330,8 @@ def test_start_year_end_year(
     # Mock ECL binary output files:
     case: EclSum = create_case()
     case.fwrite()
-    stea_input = SteaInput(["config_file"])
     with expectation:
+        stea_input = SteaInput(["config_file"])
         request = make_request(stea_input, mock_project)
         assert (
             pytest.approx(

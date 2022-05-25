@@ -1,5 +1,6 @@
 import datetime
 import sys
+from typing import List, Optional
 
 from ecl.summary import EclSum
 
@@ -48,12 +49,12 @@ class SteaRequest:
 
     def add_ecl_profile(
         self,
-        profile_id,
-        key,
-        first_year=None,
-        last_year=None,
-        multiplier=None,
-        global_multiplier=1,
+        profile_id: str,
+        key: str,
+        start_date: Optional[datetime.date] = None,
+        end_year: Optional[int] = None,
+        multiplier: Optional[List[float]] = None,
+        global_multiplier: float = 1,
     ):
         # pylint: disable=too-many-arguments
         # pylint: disable=too-many-locals
@@ -69,17 +70,27 @@ class SteaRequest:
         if key not in case:
             raise KeyError(f"No such summary key: {key}")
 
-        if first_year is None:
+        if start_date is None:
             start_date = case.start_date
-            first_year = start_date.year
 
-        if last_year is None:
+        if end_year is None:
             end_date = case.end_date
-            last_year = end_date.year
+        else:
+            end_date = datetime.date(end_year, 12, 31)
+            # only the year part of this date is used by time_range()
 
-        start_time = datetime.datetime(first_year, 1, 1)
-        end_time = datetime.datetime(last_year, 1, 1)
-        time_range = case.time_range(start=start_time, end=end_time, interval="1Y")
+        start_year_jan1 = datetime.date(start_date.year, 1, 1)
+        time_range_to_crop = None
+        if start_date > start_year_jan1 and start_date > case.start_date:
+            # Profile must be cropped with a finer than yearly resolution,
+            # ecl's time_range and blocked_productions do not support this directly:
+            time_range_to_crop = case.time_range(
+                start=datetime.date(start_date.year, 1, 1),
+                end=start_date,
+                interval="1d",
+            )
+
+        time_range = case.time_range(start=start_year_jan1, end=end_date, interval="1y")
         ecl_unit = case.unit(key)
 
         unit = self.project.get_profile_unit(profile_id)
@@ -94,10 +105,16 @@ class SteaRequest:
         unit_conversion = unitfactor * self.scale_factors[mult]
         data = list(case.blocked_production(key, time_range) * unit_conversion)
 
+        if time_range_to_crop is not None:
+            deduct = list(
+                case.blocked_production(key, time_range_to_crop) * unit_conversion
+            )
+            data[0] -= sum(deduct)
+
         mult_rangeend = min(len(multiplier), len(data))
         data[:mult_rangeend] = map(
             lambda x, y: x * y, data[:mult_rangeend], multiplier[:mult_rangeend]
         )
 
         data = [x * global_multiplier for x in data]
-        self.add_profile(profile_id, first_year, data)
+        self.add_profile(profile_id, start_date.year, data)
