@@ -67,7 +67,9 @@ class SteaInput:
             self.config = config
 
         except Exception as ex:
-            raise ValueError(f"Could not load config file: {args.config_file}") from ex
+            raise ValueError(
+                f"Could not load config file: {args.config_file}, error: {ex}"
+            ) from ex
 
         # pylint: disable=access-member-before-definition
         # (due to modified __getattr__)

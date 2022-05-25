@@ -52,7 +52,6 @@ try:
 except ImportError:
     __version__ = "0.0.0"
 
-
 from .stea_client import SteaClient
 from .stea_config import _build_schema  # noqa
 from .stea_input import SteaInput  # noqa
@@ -78,8 +77,6 @@ def make_request(stea_input: SteaInput, project: SteaProject) -> SteaRequest:
             ecl_key = profile_data.ecl_key
             mult = profile_data.mult
             glob_mult = profile_data.glob_mult
-            start_year = profile_data.start_year
-            end_year = profile_data.end_year
             for pid in profile_list:
                 if mult is None:
                     mult = [1]
@@ -88,8 +85,8 @@ def make_request(stea_input: SteaInput, project: SteaProject) -> SteaRequest:
                 request.add_ecl_profile(
                     pid,
                     ecl_key,
-                    first_year=start_year,
-                    last_year=end_year,
+                    start_date=profile_data.start_date,
+                    end_year=profile_data.end_year,
                     multiplier=mult,
                     global_multiplier=glob_mult,
                 )
