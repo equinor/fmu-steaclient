@@ -6,7 +6,7 @@ class SteaKeys:
     communication with the stea web service.
     """
 
-    PRODUCTION_SERVER = "stea-fmu.equinor.com"
+    PRODUCTION_SERVER = "https://stea-fmu.equinor.com"
     PROJECT_VERSION = "AlternativeVersion"
     PROJECT_ID = "AlternativeId"
     PROFILES = "Profiles"
