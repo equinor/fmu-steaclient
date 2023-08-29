@@ -30,7 +30,7 @@ class SteaClient:
             f"summary?ConfigurationDate={date_string(config_date)}"
         )
         try:
-            response = requests.get(url, verify=False)
+            response = requests.get(url, verify=False, timeout=60)
 
             # pylint: disable=no-member
             if not response.status_code == requests.codes.ok:
@@ -53,7 +53,7 @@ class SteaClient:
         # self._validate_request()
         url = f"{self.server}/api/v1/Calculate/"
         try:
-            response = requests.post(url, json=request.data(), verify=False)
+            response = requests.post(url, json=request.data(), verify=False, timeout=60)
             # pylint: disable=no-member
             if not response.status_code == requests.codes.ok:
                 raise HTTPError(
