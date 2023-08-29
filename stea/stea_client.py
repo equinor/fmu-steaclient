@@ -14,7 +14,6 @@ def date_string(timestamp):
 
 class SteaClient:
     def __init__(self, server):
-
         # Skip certificate verification as the default https_proxy is set to point to
         # port 80 on-premise, making this warning hard to avoid by other means.
         # pylint: disable=no-member

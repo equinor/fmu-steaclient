@@ -63,7 +63,6 @@ def test_minimal_config(ecl_case, mocker, monkeypatch):
     ["config_date", "project_id", "project_version", "ecl_profiles", "results"],
 )
 def test_invalid_config(required_key, mocker, monkeypatch):
-
     valid_dict = {
         "config_date": datetime(2018, 10, 10, 12, 0),
         "project_id": 1234,
