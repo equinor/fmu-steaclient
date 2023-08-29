@@ -4,8 +4,6 @@ import pathlib
 from contextlib import ExitStack as does_not_raise
 
 import pytest
-import requests
-import urllib3
 import yaml
 from ecl.summary import EclSum
 from ecl.util.test.ecl_mock import createEclSum
@@ -24,7 +22,8 @@ from stea.stea_request import BARRELS_PR_SM3
 
 # pylint: disable=too-many-arguments
 
-TEST_SERVER = "https://st-w4771.statoil.net"
+TEST_SERVER = "S723WS007.statoil.net"
+TEST_SERVER_URL = f"https://{TEST_SERVER}:1702"
 
 
 def fopr(_days):
@@ -61,16 +60,7 @@ def create_case(case="CSV", restart_case=None, restart_step=-1, data_start=None)
 
 
 def online():
-    try:
-        # pylint: disable=no-member
-        # https://github.com/PyCQA/pylint/issues/4584
-        requests.packages.urllib3.disable_warnings(
-            category=urllib3.exceptions.InsecureRequestWarning
-        )
-        requests.get(TEST_SERVER, verify=False, timeout=10)
-        return True
-    except requests.exceptions.ConnectionError:
-        return False
+    return os.system(f"ping -c 1 -w2 {TEST_SERVER} >/dev/null 2>&1") == 0
 
 
 @pytest.fixture(name="set_up")
@@ -83,7 +73,7 @@ def fixture_set_up():
             self.config_date = datetime.datetime(2018, 6, 26, 11, 0, 0)
             self.fopt_profile_id = "28558281-b82d-42a2-88a5-ba8e3e7d150d"
             self.fopt_profile_id_desc = "FOPT"
-            self.test_server = TEST_SERVER
+            self.test_server = TEST_SERVER_URL
             if online():
                 self.client = SteaClient(self.test_server)
             else:
@@ -476,7 +466,7 @@ def test_calculate(set_up, tmpdir):
         SteaInputKeys.ECL_PROFILES: {
             set_up.fopt_profile_id: {SteaInputKeys.ECL_KEY: "FOPT"},
         },
-        SteaInputKeys.SERVER: TEST_SERVER,
+        SteaInputKeys.SERVER: TEST_SERVER_URL,
         SteaInputKeys.RESULTS: ["NPV"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
@@ -498,7 +488,7 @@ def test_results(set_up, tmpdir, mock_result):
         SteaInputKeys.ECL_PROFILES: {
             set_up.fopt_profile_id: {SteaInputKeys.ECL_KEY: "FOPT"},
         },
-        SteaInputKeys.SERVER: TEST_SERVER,
+        SteaInputKeys.SERVER: TEST_SERVER_URL,
         SteaInputKeys.RESULTS: ["NPV"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
@@ -536,7 +526,7 @@ def test_mult(set_up, tmpdir):
                 SteaInputKeys.ECL_MULT: [2, 1],
             },
         },
-        SteaInputKeys.SERVER: TEST_SERVER,
+        SteaInputKeys.SERVER: TEST_SERVER_URL,
         SteaInputKeys.RESULTS: ["NPV"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
@@ -562,7 +552,7 @@ def test_desc(set_up, tmpdir):
         SteaInputKeys.ECL_PROFILES: {
             set_up.fopt_profile_id_desc: {SteaInputKeys.ECL_KEY: "FOPT"},
         },
-        SteaInputKeys.SERVER: TEST_SERVER,
+        SteaInputKeys.SERVER: TEST_SERVER_URL,
         SteaInputKeys.RESULTS: ["NPV"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
