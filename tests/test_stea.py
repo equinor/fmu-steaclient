@@ -238,7 +238,6 @@ def test_start_date_end_year(
     tmpdir,
     mock_project,
 ):
-
     os.chdir(tmpdir)
     config = {
         SteaInputKeys.CONFIG_DATE: datetime.datetime(2018, 10, 10, 12, 0, 0),
@@ -310,7 +309,6 @@ def test_start_date_end_year(
 def test_start_year_end_year(
     start_year, end_year, expected_final_fopt, expectation, tmpdir, mock_project
 ):
-
     os.chdir(tmpdir)
     config = {
         SteaInputKeys.CONFIG_DATE: datetime.datetime(2018, 10, 10, 12, 0, 0),
