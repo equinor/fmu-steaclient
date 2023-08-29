@@ -67,7 +67,7 @@ def online():
         requests.packages.urllib3.disable_warnings(
             category=urllib3.exceptions.InsecureRequestWarning
         )
-        requests.get(TEST_SERVER, verify=False)
+        requests.get(TEST_SERVER, verify=False, timeout=10)
         return True
     except requests.exceptions.ConnectionError:
         return False
