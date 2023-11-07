@@ -38,8 +38,8 @@ def test_minimal_config(ecl_case, mocker, monkeypatch):
 
     args = mocker.Mock()
 
-    ecl_sum = mocker.Mock()
-    monkeypatch.setattr(stea_input, "EclSum", ecl_sum)
+    summary = mocker.Mock()
+    monkeypatch.setattr(stea_input, "Summary", summary)
 
     args.config_file = "config_file.yml"
     args.ecl_case = ecl_case
@@ -54,7 +54,7 @@ def test_minimal_config(ecl_case, mocker, monkeypatch):
     assert argv.called_once()
 
     if ecl_case:
-        assert ecl_sum.called_once_with(ecl_case)
+        assert summary.called_once_with(ecl_case)
 
 
 @pytest.mark.usefixtures("use_tmpdir")
@@ -73,8 +73,8 @@ def test_invalid_config(required_key, mocker, monkeypatch):
     invalid_dict = remove_key(valid_dict, required_key)
     args = mocker.Mock()
 
-    ecl_sum = mocker.Mock()
-    monkeypatch.setattr(stea_input, "EclSum", ecl_sum)
+    summary = mocker.Mock()
+    monkeypatch.setattr(stea_input, "Summary", summary)
 
     args.config_file = "config_file.yml"
     args.ecl_case = None

@@ -11,7 +11,7 @@ setup(
     setup_requires=["setuptools_scm"],
     use_scm_version={"write_to": "stea/version.py"},
     platforms="any",
-    install_requires=["requests", "pyyaml", "configsuite>=0.6", "ecl"],
+    install_requires=["requests", "pyyaml", "configsuite>=0.6", "resdata"],
     test_suite="tests.suite",
     classifiers=[
         "Development Status :: 1 - Planning",

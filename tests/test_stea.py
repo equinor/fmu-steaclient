@@ -5,8 +5,8 @@ from contextlib import ExitStack as does_not_raise
 
 import pytest
 import yaml
-from ecl.summary import EclSum
-from ecl.util.test.ecl_mock import createEclSum
+from resdata.summary import Summary
+from resdata.util.test.mock import createSummary
 
 from stea import (
     SteaClient,
@@ -42,7 +42,7 @@ def fgpt(days):
 
 def create_case(case="CSV", restart_case=None, restart_step=-1, data_start=None):
     length = 1000
-    return createEclSum(
+    return createSummary(
         case,
         [
             ("FOPT", None, 0, "SM3"),
@@ -141,7 +141,7 @@ def test_units_and_scale_factor(
     assert ecl_unit  # pylint
 
     # Mock ECL binary output files:
-    case: EclSum = create_case()
+    case: Summary = create_case()
     case.fwrite()
 
     stea_input = SteaInput(["config_file"])
@@ -149,7 +149,7 @@ def test_units_and_scale_factor(
     mock_project.profiles["ID1"]["Multiple"] = scale_factor
 
     request = SteaRequest(stea_input, mock_project)
-    # Populate profiles from EclSum case:
+    # Populate profiles from Summary case:
     request.add_ecl_profile("ID1", "FOPT")
 
     assert (
@@ -246,7 +246,7 @@ def test_start_date_end_year(
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
     # Mock ECL binary output files:
-    case: EclSum = create_case()
+    case: Summary = create_case()
     case.fwrite()
     with expectation:
         stea_input = SteaInput(["config_file"])
@@ -264,7 +264,7 @@ def test_start_date_end_year(
     "start_year, end_year, expected_final_fopt, expectation",
     # NB: start_year is deprecated in favour of start_date
     [
-        # The mocked EclSum object contains data every tenth date from
+        # The mocked Summary object contains data every tenth date from
         # 2010-01-01 and onwards for 1000 days. The 990th dah is 2012-09-17.
         # There is no data for the 1000th day, so when summing FOPT, the FOPR
         # for the last entry is not accounted for, thus we end with 990 as the
@@ -316,7 +316,7 @@ def test_start_year_end_year(
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
     # Mock ECL binary output files:
-    case: EclSum = create_case()
+    case: Summary = create_case()
     case.fwrite()
     with expectation:
         stea_input = SteaInput(["config_file"])

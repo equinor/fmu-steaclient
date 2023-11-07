@@ -4,14 +4,10 @@ from argparse import ArgumentParser
 
 import configsuite
 import yaml
+from resdata.summary import Summary
 
 from .stea_config import _build_schema
 from .stea_keys import SteaKeys
-
-try:
-    from ecl.summary import EclSum
-except ImportError:
-    from ecl.ecl import EclSum
 
 
 def parse_date(date_input):
@@ -74,7 +70,7 @@ class SteaInput:
         # pylint: disable=access-member-before-definition
         # (due to modified __getattr__)
         if self.ecl_case is not None:
-            self.ecl_case = EclSum(self.ecl_case)
+            self.ecl_case = Summary(self.ecl_case)
 
     def __getattr__(self, key):
         """Make all values in the config available as object attributes"""
