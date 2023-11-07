@@ -135,7 +135,7 @@ def _build_schema():
                             },
                             "mult": {
                                 MK.Type: types.List,
-                                MK.Description: "List of multipliers of eclsum key",
+                                MK.Description: "List of multipliers of summary key",
                                 MK.Content: {
                                     MK.Item: {MK.Type: types.Number, MK.AllowNone: True}
                                 },
@@ -143,7 +143,7 @@ def _build_schema():
                             "glob_mult": {
                                 MK.Type: types.Number,
                                 MK.Description: (
-                                    "A single global multiplier of eclsum key"
+                                    "A single global multiplier of summary key"
                                 ),
                                 MK.AllowNone: True,
                             },

@@ -2,7 +2,7 @@ import datetime
 import sys
 from typing import List, Optional
 
-from ecl.summary import EclSum
+from resdata.summary import Summary
 
 from .stea_keys import SteaKeys
 
@@ -66,7 +66,7 @@ class SteaRequest:
                 "When adding ecl_profile you must configure an Eclipse case"
             )
 
-        case: EclSum = self.stea_input.ecl_case
+        case: Summary = self.stea_input.ecl_case
         if key not in case:
             raise KeyError(f"No such summary key: {key}")
 
