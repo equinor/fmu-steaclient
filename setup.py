@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(
-    name="stea",
+    name="fmu-steaclient",
     description="stea - calculate economic analysis",
     author="Scout, Equinor ASA",
     url="https://github.com/equinor/fmu-steaclient",
