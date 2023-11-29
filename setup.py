@@ -5,6 +5,8 @@ from setuptools import setup
 setup(
     name="fmu-steaclient",
     description="stea - calculate economic analysis",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     author="Scout, Equinor ASA",
     url="https://github.com/equinor/fmu-steaclient",
     packages=["stea"],
