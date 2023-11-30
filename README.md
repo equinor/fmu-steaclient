@@ -2,9 +2,9 @@
 [![Code Style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
-# Stea
+# fmu-steaclient
 
-Stea is a HTTP client for Stea calculations, some documentation can be found in
+fmu-steaclient is a HTTP client for Stea calculations, some documentation can be found in
 the [stea/__init__.py](stea/__init__.py) file. The source code in this project
 is a Python package, to actually use it you will need to write your own
 executable script.
@@ -40,9 +40,9 @@ profiles:
        start-date: 2018-01-01
        data: [100, 200, 300]
 
-# Profiles which are calculated directly from an eclipse simulation are
+# Profiles which are calculated directly from a reservoir simulation are
 # listed with the ecl-profiles key. Each profile is identified with an id
-# from the stea project and an eclipe key like 'FOPT'. By default the stea
+# from the stea project and an key like 'FOPT'. By default the stea
 # client will calculate a profile from the full time range of the simulated
 # data, but you can optionally use the keywords start-date and end-year to
 # limit the time range. All data in the end-year is included.
@@ -63,17 +63,17 @@ ecl-profiles:
      ecl-key: FWPT
      mult: [ 1.1, 2, 0 ]
 
-# When you use the ecl-profiles keyword to update profiles feteched directly
-# from an eclipse simulation you also need to set the ecl-case keyword to
-# point to an existing eclipse summary case on disk
-ecl-case: models/eclipse/ECL_CASE_016
+# When you use the ecl-profiles keyword to update profiles fetched directly
+# from a reservoir simulation you also need to set the ecl-case keyword to
+# point to an existing simulator summary case on disk
+ecl-case: <PATH_TO_ECL_CASE>
 
 # What do you want stea to calculate
 results:
    - NPV
 ```
 
-An minimal example script using the `stea` package could be:
+An minimal example script using the `fmu-steaclient` package could be:
 
 ```python
 #!/usr/bin/env python
