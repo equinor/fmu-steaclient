@@ -53,7 +53,7 @@ except ImportError:
     __version__ = "0.0.0"
 
 from .stea_client import SteaClient
-from .stea_config import _build_schema  # noqa
+from .stea_config import SteaConfig  # noqa
 from .stea_input import SteaInput  # noqa
 from .stea_keys import SteaInputKeys, SteaKeys  # noqa
 from .stea_project import SteaProject  # noqa
@@ -64,7 +64,7 @@ from .stea_result import SteaResult
 def make_request(stea_input: SteaInput, project: SteaProject) -> SteaRequest:
     request = SteaRequest(stea_input, project)
 
-    for profile_id, profile_data in stea_input.ecl_profiles:
+    for profile_id, profile_data in stea_input.ecl_profiles.items():
         if profile_id not in project.profiles:
             profile_list = [
                 k
@@ -91,7 +91,7 @@ def make_request(stea_input: SteaInput, project: SteaProject) -> SteaRequest:
                     global_multiplier=glob_mult,
                 )
 
-    for profile_id, profile_data in stea_input.profiles:
+    for profile_id, profile_data in stea_input.profiles.items():
         if profile_id not in project.profiles:
             profile_list = [
                 k
