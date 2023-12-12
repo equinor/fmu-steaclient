@@ -1,4 +1,3 @@
-import datetime
 import os.path
 from argparse import ArgumentParser
 
@@ -6,16 +5,6 @@ import yaml
 from resdata.summary import Summary
 
 from .stea_config import SteaConfig
-
-
-def parse_date(date_input):
-    if isinstance(date_input, datetime.date):
-        return datetime.datetime(date_input.year, date_input.month, date_input.day)
-
-    if isinstance(date_input, datetime.datetime):
-        return date_input
-
-    return datetime.datetime.strptime(date_input, "%Y-%m-%d")
 
 
 def parse_args(argv):
