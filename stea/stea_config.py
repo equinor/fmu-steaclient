@@ -1,171 +1,107 @@
-import datetime
+from datetime import datetime, date
+from typing import Dict, Optional
 
-import configsuite
-from configsuite import MetaKeys as MK
-from configsuite import types
+from pydantic import BaseModel, conlist, field_validator, Field, model_validator
+from typing_extensions import Self
 
-
-@configsuite.validator_msg("Must be defined")
-def _is_not_empty(container):
-    return len(container) > 0
+from .stea_keys import SteaKeys
 
 
-@configsuite.transformation_msg("Fix key names by replacing: `-` with `_`")
-def _fix_keys(elem):
-    fix_dict = {}
-    for key in elem:
-        new_key = str(key).replace("-", "_")
-        if key != new_key:
-            print(f"Warning: Replacing deprecated {key} with {new_key}")
-        fix_dict[new_key] = elem.get(key)
-    return fix_dict
+def replace_dashes(string: str) -> str:
+    return string.replace("-", "_")
 
 
-@configsuite.transformation_msg("fix dashes and transform deprecated start_year")
-def _fix_keys_and_check_start_year(elem):
-    no_dashes = _fix_keys(elem)
-    if no_dashes.get("start_year") is not None:
-        if no_dashes.get("start_date") is not None:
-            # configsuite transforms before validation, so this validation
-            # must be here.
+class SimulatorProfile(BaseModel):
+    ecl_key: str = Field(description="Summary key", alias_generator=replace_dashes)
+    start_date: Optional[date] = Field(
+        None,
+        description=(
+            "By default fmu-steaclient will calculate a profile from the full "
+            "time range of the simulated data, but you can optionally use the keywords "
+            "start_date and end_year to limit the time range. Production on the "
+            "start_date is included. Date format is YYYY-MM-DD."
+        ),
+    )
+    start_year: Optional[int] = Field(None, description="Deprecated. Use start_date")
+    end_year: Optional[int] = Field(
+        None,
+        description=(
+            "Set an explicit last year for the data to extract from a profile. All "
+            "data up until the last day of this year will be included."
+        ),
+    )
+    mult: Optional[conlist(float, min_length=1)] = Field(
+        None, description="List of multipliers of summary key"
+    )
+    glob_mult: Optional[float] = Field(
+        None, description="A single global multiplier of summary key"
+    )
+
+    @model_validator(mode="after")
+    def check_start_year(self) -> Self:
+        if self.start_year is not None and self.start_date is not None:
             raise ValueError("Do not provide both start_year and start_date")
-        print("Warning: start_year is deprecated, use start_date.")
-        no_dashes["start_date"] = datetime.date(no_dashes.get("start_year"), 1, 1)
-        del no_dashes["start_year"]
-    return no_dashes
+        if self.start_year:
+            self.start_date = date(self.start_year, 1, 1)
+        return self
 
 
-def _build_schema():
-    return {
-        MK.Type: types.NamedDict,
-        MK.LayerTransformation: _fix_keys,
-        MK.Content: {
-            "project_id": {
-                MK.Type: types.Number,
-                MK.Description: (
-                    "The id (a number) of the project, which must already "
-                    "exist and be available in the stea database. In the "
-                    "Stea documentation this is called 'AlternativeId'"
-                ),
-            },
-            "project_version": {
-                MK.Type: types.Number,
-                MK.Description: (
-                    "Project alternative version number that "
-                    "comes from stea database"
-                ),
-            },
-            "config_date": {
-                MK.Type: types.DateTime,
-                MK.Description: "timestamp: Y-M-D H:M:S that comes with stea request",
-            },
-            "profiles": {
-                MK.Type: types.Dict,
-                MK.Description: (
-                    "The profiles keyword is used to enter profile data explicitly "
-                    "in the configuration file. Each profile is identified with "
-                    "an id from the existing stea project, a start year and the "
-                    "actual data."
-                ),
-                MK.Content: {
-                    MK.Key: {MK.Type: types.String},
-                    MK.Value: {
-                        MK.Type: types.NamedDict,
-                        MK.LayerTransformation: _fix_keys,
-                        MK.Content: {
-                            "start_year": {
-                                MK.Type: types.Integer,
-                                MK.Description: "Start year (an Integer)",
-                                MK.AllowNone: True,
-                            },
-                            "data": {
-                                MK.Type: types.List,
-                                MK.Description: "Values",
-                                MK.Content: {
-                                    MK.Item: {MK.Type: types.Number, MK.AllowNone: True}
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-            "ecl_profiles": {
-                MK.Type: types.Dict,
-                MK.ElementValidators: (_is_not_empty,),
-                MK.Description: (
-                    "Profiles which are calculated directly from an eclipse "
-                    "simulation. They are listed with the ecl-profiles ecl_key."
-                ),
-                MK.Content: {
-                    MK.Key: {MK.Type: types.String},
-                    MK.Value: {
-                        MK.Type: types.NamedDict,
-                        MK.LayerTransformation: _fix_keys_and_check_start_year,
-                        MK.Content: {
-                            "ecl_key": {
-                                MK.Type: types.String,
-                                MK.Description: "Summary key",
-                            },
-                            "start_date": {
-                                MK.Type: types.Date,
-                                MK.Description: (
-                                    "By default fmu-steaclient "
-                                    "will calculate a profile from the full "
-                                    "time range of the simulated data, but you can "
-                                    "optionally use the keywords start_date and "
-                                    "end_year to limit the time range. Production "
-                                    "on the start_date is included. "
-                                    "Date format is YYYY-MM-DD."
-                                ),
-                                MK.AllowNone: True,
-                            },
-                            "start_year": {
-                                MK.Type: types.Integer,
-                                MK.Description: "Deprecated. Use start_date",
-                                MK.AllowNone: True,
-                            },
-                            "end_year": {
-                                MK.Type: types.Integer,
-                                MK.Description: (
-                                    "Set an explicit last year for the data "
-                                    "to extract from a profile. All data up until "
-                                    "the last day of this year will be included."
-                                ),
-                                MK.AllowNone: True,
-                            },
-                            "mult": {
-                                MK.Type: types.List,
-                                MK.Description: "List of multipliers of summary key",
-                                MK.Content: {
-                                    MK.Item: {MK.Type: types.Number, MK.AllowNone: True}
-                                },
-                            },
-                            "glob_mult": {
-                                MK.Type: types.Number,
-                                MK.Description: (
-                                    "A single global multiplier of summary key"
-                                ),
-                                MK.AllowNone: True,
-                            },
-                        },
-                    },
-                },
-            },
-            "stea_server": {
-                MK.Type: types.String,
-                MK.Description: "stea server host.",
-                MK.AllowNone: True,
-            },
-            "ecl_case": {
-                MK.Type: types.String,
-                MK.Description: "ecl case location",
-                MK.AllowNone: True,
-            },
-            "results": {
-                MK.Type: types.List,
-                MK.ElementValidators: (_is_not_empty,),
-                MK.Description: ("Specify what STEA should calculate"),
-                MK.Content: {MK.Item: {MK.Type: types.String}},
-            },
-        },
-    }
+class Profile(BaseModel):
+    start_year: int = Field(
+        description="Start year",
+        alias_generator=replace_dashes,
+    )
+    data: Optional[conlist(float, min_length=1)] = Field(
+        description="Values",
+    )
+
+
+class SteaConfig(BaseModel):
+    config_date: datetime = Field(
+        description="timestamp: YYYY-MM-DD HH:MM:SS that comes with stea request",
+        alias_generator=replace_dashes,
+    )
+    project_id: int = Field(
+        description=(
+            "The id of the project, which must already exist and be available in the "
+            "stea database. In the Stea documentation this is called 'AlternativeId'"
+        ),
+        alias_generator=replace_dashes,
+    )
+    project_version: int = Field(
+        description="Project alternative version number that comes from stea database",
+        alias_generator=replace_dashes,
+    )
+    profiles: Dict[str, Profile] = Field(
+        {},
+        description=(
+            "The profiles keyword is used to enter profile data explicitly in the "
+            "configuration file. Each profile is identified with an id from the "
+            "existing stea project, a start year and the actual data."
+        ),
+        alias_generator=replace_dashes,
+    )
+    ecl_profiles: Dict[str, SimulatorProfile] = Field(
+        description=(
+            "Profiles which are calculated directly from a reservoir simulation. "
+            "They are listed with the ecl-profiles ecl_key."
+        ),
+        alias_generator=replace_dashes,
+    )
+    results: conlist(str, min_length=1) = Field(
+        description="Specify what STEA should calculate", alias_generator=replace_dashes
+    )
+    ecl_case: Optional[str] = Field(
+        None, description="ecl case location", alias_generator=replace_dashes
+    )
+    stea_server: str = Field(
+        SteaKeys.PRODUCTION_SERVER,
+        description="stea server host",
+        alias_generator=replace_dashes,
+    )
+
+    @field_validator("ecl_profiles")
+    @classmethod
+    def non_empty(cls, value: dict):
+        assert len(value) != 0, "Can not be empty"
+        return value

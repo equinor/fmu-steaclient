@@ -2,12 +2,10 @@ import datetime
 import os.path
 from argparse import ArgumentParser
 
-import configsuite
 import yaml
 from resdata.summary import Summary
 
-from .stea_config import _build_schema
-from .stea_keys import SteaKeys
+from .stea_config import SteaConfig
 
 
 def parse_date(date_input):
@@ -40,25 +38,13 @@ class SteaInput:
             raise IOError(f"No such file: {args.config_file}")
 
         try:
-            schema = _build_schema()
-            defaults = {"stea_server": SteaKeys.PRODUCTION_SERVER}
             with open(args.config_file, "r", encoding="utf-8") as config_file:
                 config_dict = yaml.safe_load(config_file)
 
                 if args.ecl_case:
                     config_dict["ecl_case"] = args.ecl_case
 
-                config = configsuite.ConfigSuite(
-                    config_dict,
-                    schema,
-                    layers=(defaults,),
-                    deduce_required=True,
-                )
-
-            if not config.valid:
-                raise ValueError(
-                    f"Config file is not a valid config file: {config.errors}"
-                )
+                config = SteaConfig(**config_dict)
 
             self.config = config
 
@@ -74,4 +60,4 @@ class SteaInput:
 
     def __getattr__(self, key):
         """Make all values in the config available as object attributes"""
-        return self.config.snapshot.__getattribute__(key)
+        return self.config.__getattribute__(key)

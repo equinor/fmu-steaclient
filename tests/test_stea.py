@@ -364,7 +364,7 @@ def test_config(tmpdir):
     assert stea_input.project_id == 1234
     assert stea_input.project_version == 1
     assert 2 == len(stea_input.ecl_profiles)
-    keys = [key[0] for key in stea_input.ecl_profiles]
+    keys = list(stea_input.ecl_profiles)
     assert "ID1" in keys
     assert "ID2" in keys
 
