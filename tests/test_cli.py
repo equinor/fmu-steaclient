@@ -4,8 +4,9 @@ import shutil
 from unittest import mock
 
 import pytest
-import stea
 from click.testing import CliRunner
+
+import stea
 from stea import SteaKeys, SteaResult
 from stea.fm_stea.fm_stea import main_entry_point
 
