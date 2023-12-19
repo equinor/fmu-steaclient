@@ -1,45 +1,34 @@
-import os.path
-from argparse import ArgumentParser
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+from pathlib import Path
 
 import yaml
 from resdata.summary import Summary
 
 from .stea_config import SteaConfig
 
-
-def parse_args(argv):
-    parser = ArgumentParser()
-    parser.add_argument("config_file")
-    parser.add_argument(
-        "--ecl_case",
-        # Do not set type=str here, it will break.
-        help="If supplied, it will overwrite any ecl_case supplied in the config file",
-    )
-    return parser.parse_args(argv)
+if TYPE_CHECKING:
+    from typing import Optional
 
 
 class SteaInput:
     # pylint: disable=too-few-public-methods
-    def __init__(self, argv):
-        args = parse_args(argv)
-
-        if not os.path.isfile(args.config_file):
-            raise IOError(f"No such file: {args.config_file}")
-
+    def __init__(self, config_file: Path, ecl_case: Optional[str] = None):
         try:
-            with open(args.config_file, "r", encoding="utf-8") as config_file:
-                config_dict = yaml.safe_load(config_file)
-
-                if args.ecl_case:
-                    config_dict["ecl_case"] = args.ecl_case
-
+            with open(config_file, "r", encoding="utf-8") as fin:
+                config_dict = yaml.safe_load(fin)
+                if ecl_case:
+                    if "ecl-case" in config_dict:
+                        del config_dict["ecl-case"]
+                    config_dict["ecl_case"] = ecl_case
                 config = SteaConfig(**config_dict)
 
             self.config = config
 
         except Exception as ex:
             raise ValueError(
-                f"Could not load config file: {args.config_file}, error: {ex}"
+                f"Could not load config file: {config_file}, error: {ex}"
             ) from ex
 
         # pylint: disable=access-member-before-definition

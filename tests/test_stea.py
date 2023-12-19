@@ -144,7 +144,7 @@ def test_units_and_scale_factor(
     case: Summary = create_case()
     case.fwrite()
 
-    stea_input = SteaInput(["config_file"])
+    stea_input = SteaInput("config_file")
     mock_project.profiles["ID1"]["Unit"] = project_unit
     mock_project.profiles["ID1"]["Multiple"] = scale_factor
 
@@ -249,7 +249,7 @@ def test_start_date_end_year(
     case: Summary = create_case()
     case.fwrite()
     with expectation:
-        stea_input = SteaInput(["config_file"])
+        stea_input = SteaInput("config_file")
         request = make_request(stea_input, mock_project)
         assert (
             pytest.approx(
@@ -319,7 +319,7 @@ def test_start_year_end_year(
     case: Summary = create_case()
     case.fwrite()
     with expectation:
-        stea_input = SteaInput(["config_file"])
+        stea_input = SteaInput("config_file")
         request = make_request(stea_input, mock_project)
         assert (
             pytest.approx(
@@ -332,8 +332,10 @@ def test_start_year_end_year(
 
 def test_config_not_exists(tmpdir):
     os.chdir(tmpdir)
-    with pytest.raises(IOError):
-        SteaInput(["File/does/not/exist"])
+    with pytest.raises(
+        ValueError, match="No such file or directory: 'File/does/not/exist'"
+    ):
+        SteaInput("File/does/not/exist")
 
 
 def test_config_invalid_file(tmpdir):
@@ -343,7 +345,7 @@ def test_config_invalid_file(tmpdir):
         fout.write("    key: value :\n")
 
     with pytest.raises(ValueError):
-        SteaInput(["config_file"])
+        SteaInput("config_file")
 
 
 def test_config(tmpdir):
@@ -359,7 +361,7 @@ def test_config(tmpdir):
         SteaInputKeys.RESULTS: ["npv"],
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
-    stea_input = SteaInput(["config_file"])
+    stea_input = SteaInput("config_file")
     assert stea_input.config_date == datetime.datetime(2018, 10, 10, 12, 0, 0)
     assert stea_input.project_id == 1234
     assert stea_input.project_version == 1
@@ -375,7 +377,7 @@ def test_config_invalid_date(tmpdir):
         fout.write(f"{SteaInputKeys.CONFIG_DATE}: No-not-a-date")
 
     with pytest.raises(ValueError):
-        SteaInput(["config_file"])
+        SteaInput("config_file")
 
 
 def test_input_argv(tmpdir):
@@ -393,11 +395,11 @@ def test_input_argv(tmpdir):
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
     with pytest.raises(IOError):
-        SteaInput(["config_file", f"--{SteaInputKeys.ECL_CASE}=CSV"])
+        SteaInput("config_file", "CSV")
 
     case = create_case()
     case.fwrite()
-    SteaInput(["config_file", f"--{SteaInputKeys.ECL_CASE}=CSV"])
+    SteaInput("config_file", "CSV")
 
 
 def test_request1(tmpdir, mock_project):
@@ -414,7 +416,7 @@ def test_request1(tmpdir, mock_project):
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-    stea_input = SteaInput(["config_file"])
+    stea_input = SteaInput("config_file")
     case = create_case()
     case.fwrite()
     request = SteaRequest(stea_input, mock_project)
@@ -444,7 +446,7 @@ def test_request2(tmpdir, mock_project):
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-    stea_input = SteaInput(["config_file"])
+    stea_input = SteaInput("config_file")
     request = SteaRequest(stea_input, mock_project)
 
     with pytest.raises(KeyError):
@@ -472,7 +474,7 @@ def test_calculate(set_up, tmpdir):
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-    stea_input = SteaInput(["config_file"])
+    stea_input = SteaInput("config_file")
     results = calculate(stea_input)
     assert pytest.approx(results.results(SteaKeys.CORPORATE)["NPV"]) == 536.137196
 
@@ -494,7 +496,7 @@ def test_results(set_up, tmpdir, mock_result):
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-    stea_input = SteaInput(["config_file"])
+    stea_input = SteaInput("config_file")
 
     result = SteaResult(mock_result, stea_input)
     with pytest.raises(KeyError):
@@ -532,7 +534,7 @@ def test_mult(set_up, tmpdir):
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-    stea_input = SteaInput(["config_file"])
+    stea_input = SteaInput("config_file")
     results = calculate(stea_input)
     res = results.results(SteaKeys.CORPORATE)
     assert len(res) == 1
@@ -558,7 +560,7 @@ def test_desc(set_up, tmpdir):
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-    stea_input = SteaInput(["config_file"])
+    stea_input = SteaInput("config_file")
     results = calculate(stea_input)
     res = results.results(SteaKeys.CORPORATE)
     assert len(res) == 1

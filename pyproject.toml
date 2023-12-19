@@ -31,6 +31,12 @@ dependencies=["requests", "pyyaml", "pydantic>=2", "resdata", "ert"]
 [project.urls]
 repository = "https://github.com/equinor/fmu-steaclient"
 
+[project.entry-points."ert"]
+stea_job = "stea.fm_stea.fm_stea"
+
+[project.entry-points."console_scripts"]
+fmu_steaclient = "stea.fm_stea.fm_stea:main_entry_point"
+
 [tool.setuptools_scm]
 write_to = "stea/version.py"
 
@@ -38,4 +44,5 @@ write_to = "stea/version.py"
 test = [
 "pytest",
 "pytest-mock",
+"pytest-httpserver",
 ]

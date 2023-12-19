@@ -1,10 +1,11 @@
 import copy
 from datetime import datetime
+from unittest.mock import MagicMock
 
 import pytest
 import yaml
 
-from stea import stea_input
+from stea import SteaConfig, stea_input
 
 
 @pytest.fixture()
@@ -27,7 +28,7 @@ def remove_key(orig_dict, key):
         None,
     ],
 )
-def test_minimal_config(ecl_case, mocker, monkeypatch):
+def test_minimal_config(ecl_case, monkeypatch):
     valid_config = {
         "config_date": datetime(2018, 10, 10, 12, 0),
         "project_id": 1234,
@@ -36,22 +37,13 @@ def test_minimal_config(ecl_case, mocker, monkeypatch):
         "results": ["npv"],
     }
 
-    args = mocker.Mock()
-
-    summary = mocker.Mock()
+    summary = MagicMock()
     monkeypatch.setattr(stea_input, "Summary", summary)
-
-    args.config_file = "config_file.yml"
-    args.ecl_case = ecl_case
-    argv = mocker.Mock(return_value=args)
-    monkeypatch.setattr(stea_input, "parse_args", argv)
 
     with open("config_file.yml", "w", encoding="utf-8") as fout:
         yaml.dump(valid_config, fout)
 
-    stea_input.SteaInput("something")
-
-    assert argv.called_once()
+    stea_input.SteaInput("config_file.yml", ecl_case)
 
     if ecl_case:
         assert summary.called_once_with(ecl_case)
@@ -62,7 +54,7 @@ def test_minimal_config(ecl_case, mocker, monkeypatch):
     "required_key",
     ["config_date", "project_id", "project_version", "ecl_profiles", "results"],
 )
-def test_invalid_config(required_key, mocker, monkeypatch):
+def test_invalid_config(required_key, monkeypatch):
     valid_dict = {
         "config_date": datetime(2018, 10, 10, 12, 0),
         "project_id": 1234,
@@ -71,20 +63,43 @@ def test_invalid_config(required_key, mocker, monkeypatch):
         "results": ["npv"],
     }
     invalid_dict = remove_key(valid_dict, required_key)
-    args = mocker.Mock()
 
-    summary = mocker.Mock()
+    summary = MagicMock()
     monkeypatch.setattr(stea_input, "Summary", summary)
-
-    args.config_file = "config_file.yml"
-    args.ecl_case = None
-    argv = mocker.Mock(return_value=args)
-    monkeypatch.setattr(stea_input, "parse_args", argv)
 
     with open("config_file.yml", "w", encoding="utf-8") as fout:
         yaml.dump(invalid_dict, fout)
 
     with pytest.raises(ValueError):
-        stea_input.SteaInput("something")
+        stea_input.SteaInput("config_file.yml", None)
 
-    assert argv.called_once()
+
+def test_deprecated_config_keys():
+    valid_config = {
+        "config-date": datetime(2018, 10, 10, 12, 0),
+        "project-id": 1234,
+        "project-version": 1,
+        "ecl-profiles": {"ID1": {"ecl_key": "FOPT"}},
+        "results": ["npv"],
+    }
+    SteaConfig(**valid_config)
+
+
+@pytest.mark.parametrize("ecl_case", ["ecl-case", "ecl_case"])
+def test_overwrite_ecl_case(tmp_path, monkeypatch, ecl_case):
+    monkeypatch.chdir(tmp_path)
+    valid_config = {
+        "config-date": datetime(2018, 10, 10, 12, 0),
+        "project-id": 1234,
+        "project-version": 1,
+        "ecl-profiles": {"ID1": {"ecl_key": "FOPT"}},
+        "results": ["npv"],
+        ecl_case: "case",
+    }
+    summary = MagicMock()
+    monkeypatch.setattr(stea_input, "Summary", summary)
+
+    with open("config_file.yml", "w", encoding="utf-8") as fout:
+        yaml.dump(valid_config, fout)
+    config = stea_input.SteaInput("config_file.yml", "another_case").config
+    assert config.ecl_case == "another_case"
