@@ -2,5 +2,5 @@
 /build
 /dist
 *.pyc
-/stea.egg-info
+/fmu_steaclient.egg-info/
 /stea/version.py

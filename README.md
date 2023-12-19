@@ -144,7 +144,7 @@ this requires that the test dependencies from `test_requirements.txt` are instal
 
 ```sh
 # Install test requirements
-pip install -r test_requirements.txt
+pip install -r ".[test]"
 ```
 
 [black](https://pypi.org/project/black/) is used as the code formatter, to run the style test:

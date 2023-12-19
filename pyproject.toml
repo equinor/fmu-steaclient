@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fmu-steaclient"
+authors = [
+  {name = "Equinor ASA", email = "fg_sib-scout@equinor.com"},
+]
+description="stea - calculate economic analysis"
+requires-python = ">=3.8"
+readme = "README.md"
+classifiers=[
+        "Development Status :: 1 - Planning",
+        "Environment :: Plugins",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+        "Natural Language :: English",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dynamic = ["version"]
+dependencies=["requests", "pyyaml", "pydantic>=2", "resdata", "ert"]
+
+[project.urls]
+repository = "https://github.com/equinor/fmu-steaclient"
+
+[tool.setuptools_scm]
+write_to = "stea/version.py"
+
+[project.optional-dependencies]
+test = [
+"pytest",
+"pytest-mock",
+]

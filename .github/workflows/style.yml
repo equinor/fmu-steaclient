@@ -15,8 +15,7 @@ jobs:
         run: |
           pip install -U pip
           pip install black flake8 pylint
-          pip install -r test_requirements.txt
-          pip install .
+          pip install ".[test]"
 
       - name: Run black
         run: |
