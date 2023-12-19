@@ -26,7 +26,7 @@ classifiers=[
         "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dynamic = ["version"]
-dependencies=["requests", "pyyaml", "pydantic>=2", "resdata", "ert", "click"]
+dependencies=["requests", "pyyaml", "pydantic>=2", "resdata", "click"]
 
 [project.urls]
 repository = "https://github.com/equinor/fmu-steaclient"
@@ -41,7 +41,9 @@ fmu_steaclient = "stea.fm_stea.fm_stea:main_entry_point"
 write_to = "stea/version.py"
 
 [project.optional-dependencies]
+ert = ["ert"]
 test = [
+"fmu-steaclient[ert]",
 "pytest",
 "pytest-mock",
 "pytest-httpserver",
