@@ -23,8 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -U pip
-          pip install -r test_requirements.txt
-          pip install .
+          pip install ".[test]"
 
       - name: Test with pytest
         run: |
