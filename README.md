@@ -86,7 +86,7 @@ def main(argv):
     else:
         raise AttributeError('Need yaml formatted configuration file as first commandline argument')
 
-    stea_input = stea.SteaInput([fname])
+    stea_input = stea.SteaInput(fname)
     res = stea.calculate(stea_input)
     for res, value in res.results(stea.SteaKeys.CORPORATE).items():
         print("{res} : {value}".format(res=res, value=value))

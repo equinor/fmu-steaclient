@@ -1,18 +1,26 @@
 from datetime import datetime, date
 from typing import Dict, Optional
 
-from pydantic import BaseModel, conlist, field_validator, Field, model_validator
+from pydantic import (
+    BaseModel,
+    conlist,
+    field_validator,
+    Field,
+    model_validator,
+    ConfigDict,
+)
 from typing_extensions import Self
 
 from .stea_keys import SteaKeys
 
 
-def replace_dashes(string: str) -> str:
-    return string.replace("-", "_")
+def replace_dash(string: str) -> str:
+    return string.replace("_", "-")
 
 
 class SimulatorProfile(BaseModel):
-    ecl_key: str = Field(description="Summary key", alias_generator=replace_dashes)
+    model_config = ConfigDict(populate_by_name=True, alias_generator=replace_dash)
+    ecl_key: str = Field(description="Summary key")
     start_date: Optional[date] = Field(
         None,
         description=(
@@ -47,9 +55,9 @@ class SimulatorProfile(BaseModel):
 
 
 class Profile(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, alias_generator=replace_dash)
     start_year: int = Field(
         description="Start year",
-        alias_generator=replace_dashes,
     )
     data: Optional[conlist(float, min_length=1)] = Field(
         description="Values",
@@ -57,20 +65,18 @@ class Profile(BaseModel):
 
 
 class SteaConfig(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, alias_generator=replace_dash)
     config_date: datetime = Field(
         description="timestamp: YYYY-MM-DD HH:MM:SS that comes with stea request",
-        alias_generator=replace_dashes,
     )
     project_id: int = Field(
         description=(
             "The id of the project, which must already exist and be available in the "
             "stea database. In the Stea documentation this is called 'AlternativeId'"
         ),
-        alias_generator=replace_dashes,
     )
     project_version: int = Field(
         description="Project alternative version number that comes from stea database",
-        alias_generator=replace_dashes,
     )
     profiles: Dict[str, Profile] = Field(
         {},
@@ -79,25 +85,20 @@ class SteaConfig(BaseModel):
             "configuration file. Each profile is identified with an id from the "
             "existing stea project, a start year and the actual data."
         ),
-        alias_generator=replace_dashes,
     )
     ecl_profiles: Dict[str, SimulatorProfile] = Field(
         description=(
             "Profiles which are calculated directly from a reservoir simulation. "
             "They are listed with the ecl-profiles ecl_key."
         ),
-        alias_generator=replace_dashes,
     )
     results: conlist(str, min_length=1) = Field(
-        description="Specify what STEA should calculate", alias_generator=replace_dashes
+        description="Specify what STEA should calculate"
     )
-    ecl_case: Optional[str] = Field(
-        None, description="ecl case location", alias_generator=replace_dashes
-    )
+    ecl_case: Optional[str] = Field(None, description="ecl case location")
     stea_server: str = Field(
         SteaKeys.PRODUCTION_SERVER,
         description="stea server host",
-        alias_generator=replace_dashes,
     )
 
     @field_validator("ecl_profiles")
