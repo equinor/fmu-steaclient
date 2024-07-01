@@ -1,5 +1,5 @@
 import copy
-from datetime import datetime
+from datetime import datetime, date
 from unittest.mock import MagicMock
 
 import pytest
@@ -28,9 +28,12 @@ def remove_key(orig_dict, key):
         None,
     ],
 )
-def test_minimal_config(ecl_case, monkeypatch):
+@pytest.mark.parametrize(
+    "config_date", [date(2018, 10, 10), datetime(2018, 10, 10, 12, 0)]
+)
+def test_minimal_config(ecl_case, monkeypatch, config_date):
     valid_config = {
-        "config_date": datetime(2018, 10, 10, 12, 0),
+        "config_date": config_date,
         "project_id": 1234,
         "project_version": 1,
         "ecl_profiles": {"ID1": {"ecl_key": "FOPT"}},

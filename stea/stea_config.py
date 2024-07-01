@@ -67,7 +67,8 @@ class Profile(BaseModel):
 class SteaConfig(BaseModel):
     model_config = ConfigDict(populate_by_name=True, alias_generator=replace_dash)
     config_date: datetime = Field(
-        description="timestamp: YYYY-MM-DD HH:MM:SS that comes with stea request",
+        description="date or timestamp: YYYY-MM-DD (HH:MM:SS) "
+        "that comes with stea request",
     )
     project_id: int = Field(
         description=(
