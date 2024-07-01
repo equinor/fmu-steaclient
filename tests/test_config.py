@@ -46,7 +46,7 @@ def test_minimal_config(ecl_case, monkeypatch):
     stea_input.SteaInput("config_file.yml", ecl_case)
 
     if ecl_case:
-        assert summary.called_once_with(ecl_case)
+        summary.assert_called_once_with(ecl_case)
 
 
 @pytest.mark.usefixtures("use_tmpdir")
