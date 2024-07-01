@@ -1,10 +1,9 @@
 import json
 
 import click
-
+import importlib_resources
 from ert.shared.plugins.plugin_manager import hook_implementation
 from ert.shared.plugins.plugin_response import plugin_response
-from pkg_resources import resource_filename
 
 import stea
 
@@ -73,7 +72,11 @@ def _build_full_response(result, profiles):
 @hook_implementation
 @plugin_response(plugin_name="fmu-steaclient")
 def installable_jobs():
-    return {"STEA": resource_filename("stea", "fm_stea/STEA_CONFIG")}
+    resource_directory_ref = importlib_resources.files("stea") / "fm_stea"
+    stea_fm_filename = ""
+    with importlib_resources.as_file(resource_directory_ref) as resource_directory:
+        stea_fm_filename = str(resource_directory / "STEA_CONFIG")
+    return {"STEA": stea_fm_filename}
 
 
 @hook_implementation
