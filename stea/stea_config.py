@@ -1,13 +1,13 @@
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import Dict, Optional
 
 from pydantic import (
     BaseModel,
+    ConfigDict,
+    Field,
     conlist,
     field_validator,
-    Field,
     model_validator,
-    ConfigDict,
 )
 from typing_extensions import Self
 

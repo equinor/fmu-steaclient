@@ -1,6 +1,4 @@
-"""Test STEA forward model towards the HTTP STEA library
-
-"""
+"""Test STEA forward model towards the HTTP STEA library"""
 
 import subprocess
 from datetime import datetime

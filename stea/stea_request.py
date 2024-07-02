@@ -56,8 +56,6 @@ class SteaRequest:
         multiplier: Optional[List[float]] = None,
         global_multiplier: float = 1,
     ):
-        # pylint: disable=too-many-arguments
-        # pylint: disable=too-many-locals
         if multiplier is None:
             multiplier = [1]
 
