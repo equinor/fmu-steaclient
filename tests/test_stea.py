@@ -20,7 +20,7 @@ from stea import (
 )
 from stea.stea_request import BARRELS_PR_SM3
 
-# pylint: disable=too-many-arguments
+# ruff: noqa: PLR2004
 
 TEST_SERVER = "S723WS007.statoil.net"
 TEST_SERVER_URL = f"https://{TEST_SERVER}:1702"
@@ -101,8 +101,8 @@ def test_project(mock_project):
     with pytest.raises(KeyError):
         mock_project.get_profile_mult("XYZ_NO_SUCH_PROFILE")
 
-    assert "unit1" == mock_project.get_profile_unit("ID1")
-    assert "Mill" == mock_project.get_profile_mult("ID1")
+    assert mock_project.get_profile_unit("ID1") == "unit1"
+    assert mock_project.get_profile_mult("ID1") == "Mill"
     assert mock_project.get_profile_mult("ID2") == "1"
 
 
@@ -365,7 +365,7 @@ def test_config(tmpdir):
     assert stea_input.config_date == datetime.datetime(2018, 10, 10, 12, 0, 0)
     assert stea_input.project_id == 1234
     assert stea_input.project_version == 1
-    assert 2 == len(stea_input.ecl_profiles)
+    assert len(stea_input.ecl_profiles) == 2
     keys = list(stea_input.ecl_profiles)
     assert "ID1" in keys
     assert "ID2" in keys

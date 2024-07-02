@@ -47,4 +47,23 @@ test = [
 "pytest",
 "pytest-mock",
 "pytest-httpserver",
+"ruff",
 ]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+  "W",  # pycodestyle
+  "I",  # isort
+  "B",  # flake-8-bugbear
+  "SIM",  # flake-8-simplify
+  "F",  # pyflakes
+  "PL",  # pylint
+  "NPY",  # numpy specific rules
+  "C4",  # flake8-comprehensions
+]
+
+[tool.ruff.lint.pylint]
+max-args = 7
