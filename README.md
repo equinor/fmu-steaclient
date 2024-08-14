@@ -1,11 +1,10 @@
 [![Actions Status](https://github.com/equinor/stea/workflows/CI/badge.svg)](https://github.com/equinor/stea/actions?query=workflow=CI)
-[![Code Style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
 # fmu-steaclient
 
 fmu-steaclient is a HTTP client for Stea calculations, some documentation can be found in
-the [stea/__init__.py](stea/__init__.py) file. The source code in this project
+the [stea/__init__.py](``stea/__init__.py``) file. The source code in this project
 is a Python package, to actually use it you will need to write your own
 executable script.
 
@@ -97,59 +96,28 @@ if __name__ == "__main__":
 
 ```
 
-# Installation and usage
+# Development
 
-stea is available on [pypi](https://pypi.org/project/stea/) and can be installed using `pip install stea`.
+## Installation
 
+Clone the repository and install in a virtual Python environment.
 ```sh
-# Install
-pip install stea
+pip install -e ".[test]"
 ```
 
 ## Run tests
-[tox](https://tox.readthedocs.io/en/latest/) is used as the test facilitator,
-to run the full test suite:
+To run the test suite:
 
 ```sh
-# Test
-pip install tox
-tox
-```
-
-or to run it for a particular Python version (in this case Python 3.7):
-
-```sh
-# Test
-pip install tox
-tox -e py37
-```
-
-or to run it for a the current Python version:
-
-```sh
-# Test
-pip install tox
-tox -e py
-```
-
-[pytest](https://docs.pytest.org/en/latest/) is used as the test runner, so for quicker
-iteration it is possible to run:
-
-```sh
-# Test
 pytest
 ```
 
-this requires that the test dependencies from `test_requirements.txt` are installed.
+## Lint code
 
+All commits to the repository must pass these commands, formatting and linting the code:
 ```sh
-# Install test requirements
-pip install -r ".[test]"
+ruff check --fix .
+ruff format .
 ```
 
-[black](https://pypi.org/project/black/) is used as the code formatter, to run the style test:
 
-```sh
-pip install tox
-tox -e style
-```
