@@ -3,4 +3,4 @@
 /dist
 *.pyc
 /fmu_steaclient.egg-info/
-/stea/version.py
+/src/stea/version.py
