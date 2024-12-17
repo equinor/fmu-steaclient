@@ -87,7 +87,7 @@ def test_stea_fm_single_real(httpserver, ecl_case, ecl_base, fm_options):
         encoding="utf-8",
     )
 
-    subprocess.run(["ert", "test_run", "config.ert", "--verbose"], check=True)
+    subprocess.check_call(["ert", "test_run", "config.ert", "--verbose"])
 
     assert Path("realization-0/iter-0/NPV_0").read_text(encoding="utf-8")[0:3] == "30\n"
     assert Path("realization-0/iter-0/stea_response.json").exists()
