@@ -1,8 +1,14 @@
 import json
+import shutil
 
 import click
-import ert
-import importlib_resources
+from ert import (
+    ForwardModelStepDocumentation,
+    ForwardModelStepPlugin,
+)
+from ert import (
+    plugin as ert_plugin,
+)
 
 import stea
 
@@ -68,26 +74,34 @@ def _build_full_response(result, profiles):
     return {"response": result, "profiles": profiles}
 
 
-@ert.plugin(name="stea")
-def installable_jobs():
-    resource_directory_ref = importlib_resources.files("stea") / "fm_stea"
-    stea_fm_filename = ""
-    with importlib_resources.as_file(resource_directory_ref) as resource_directory:
-        stea_fm_filename = str(resource_directory / "STEA_CONFIG")
-    return {"STEA": stea_fm_filename}
+class FmuSteaclient(ForwardModelStepPlugin):
+    def __init__(self) -> None:
+        super().__init__(
+            name="STEA",
+            command=[
+                shutil.which("fmu_steaclient") or "fmu_steaclient",
+                "--config",
+                "<CONFIG>",
+                "--response_file",
+                "<RESPONSE_FILE>",
+                "--ecl_case",
+                "<ECL_CASE>",
+            ],
+            default_mapping={
+                "<RESPONSE_FILE>": "stea_response.json",
+                "<ECL_CASE>": "__NONE__",
+            },
+        )
+
+    @staticmethod
+    def documentation() -> ForwardModelStepDocumentation:
+        return ForwardModelStepDocumentation(
+            description=str(main_entry_point.__doc__),
+            category="modelling.financial",
+            examples="",
+        )
 
 
-@ert.plugin(name="stea")
-def job_documentation(job_name):
-    if job_name != "STEA":
-        return None
-
-    description = main_entry_point.__doc__
-    examples = ""
-    category = "modelling.financial"
-
-    return {
-        "description": description,
-        "examples": examples,
-        "category": category,
-    }
+@ert_plugin(name="stea")
+def installable_forward_model_steps() -> list[type[ForwardModelStepPlugin]]:
+    return [FmuSteaclient]

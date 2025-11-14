@@ -31,8 +31,8 @@ dependencies=["requests", "pyyaml", "pydantic>=2", "resdata", "click", "importli
 [project.urls]
 repository = "https://github.com/equinor/fmu-steaclient"
 
-[project.entry-points."ert"]
-stea_job = "stea.fm_stea.fm_stea"
+[project.entry-points.ert]
+stea_step = "stea.fm_stea.fm_stea"
 
 [project.entry-points."console_scripts"]
 fmu_steaclient = "stea.fm_stea.fm_stea:main_entry_point"
