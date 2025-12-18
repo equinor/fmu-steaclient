@@ -119,5 +119,3 @@ All commits to the repository must pass these commands, formatting and linting t
 ruff check --fix .
 ruff format .
 ```
-
-
