@@ -47,7 +47,7 @@ def mock_project(monkeypatch):
     }
     mocked_project = mock.MagicMock(return_value=stea.SteaProject(project))
     monkeypatch.setattr(stea.SteaClient, "get_project", mocked_project)
-    yield mocked_project
+    return mocked_project
 
 
 @pytest.fixture(autouse=True, name="mock_calculate")
@@ -55,7 +55,7 @@ def fixture_mock_calculate(monkeypatch):
     mock_stea = mock.MagicMock()
     mock_stea.side_effect = calculate_patch
     monkeypatch.setattr(stea, "calculate", mock_stea)
-    yield mock_stea
+    return mock_stea
 
 
 @pytest.mark.usefixtures("setup_stea")

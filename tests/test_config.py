@@ -8,7 +8,7 @@ import yaml
 from stea import SteaConfig, stea_input
 
 
-@pytest.fixture()
+@pytest.fixture
 def use_tmpdir(tmpdir):
     with tmpdir.as_cwd():
         yield
@@ -73,7 +73,7 @@ def test_invalid_config(required_key, monkeypatch):
     with open("config_file.yml", "w", encoding="utf-8") as fout:
         yaml.dump(invalid_dict, fout)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Could not load config file"):
         stea_input.SteaInput("config_file.yml", None)
 
 
