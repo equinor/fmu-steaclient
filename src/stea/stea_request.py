@@ -1,7 +1,9 @@
 import datetime
 import sys
+from typing import TYPE_CHECKING
 
-from resdata.summary import Summary
+if TYPE_CHECKING:
+    from resdata.summary import Summary
 
 from .stea_keys import SteaKeys
 

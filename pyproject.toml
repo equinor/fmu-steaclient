@@ -65,6 +65,7 @@ select = [
   "NPY", # numpy specific rules
   "PL",  # pylint
   "SIM", # flake-8-simplify
+  "TC",  # flake-8-typechecking
   "UP",  # pyupgrade
   "W",   # pycodestyle
 ]
