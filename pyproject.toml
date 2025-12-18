@@ -65,6 +65,7 @@ select = [
   "I",   # isort
   "NPY", # numpy specific rules
   "PL",  # pylint
+  "PT",  # pytest
   "SIM", # flake-8-simplify
   "TC",  # flake-8-typechecking
   "UP",  # pyupgrade

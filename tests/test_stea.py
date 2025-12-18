@@ -82,7 +82,7 @@ def fixture_set_up():
             else:
                 self.client = SteaMockClient("test-server")
 
-    yield Stea()
+    return Stea()
 
 
 class SteaMockClient:
@@ -110,7 +110,7 @@ def test_project(mock_project):
 
 
 @pytest.mark.parametrize(
-    "ecl_unit, project_unit, scale_factor, expected_fopt0",
+    ("ecl_unit", "project_unit", "scale_factor", "expected_fopt0"),
     [
         ("SM3", "Sm3", "Mill", fopr(0) * 365 / 1e6),
         ("SM3", "Bbl", "Mill", fopr(0) * 365 / 1e6 * BARRELS_PR_SM3),
@@ -164,7 +164,7 @@ def test_units_and_scale_factor(
 
 
 @pytest.mark.parametrize(
-    "start_date, start_year, end_year, expected_final_fopt, expectation",
+    ("start_date", "start_year", "end_year", "expected_final_fopt", "expectation"),
     [
         # FOPR is 1 for all days, so the expected total production in these tests
         # is the day count.
@@ -264,7 +264,7 @@ def test_start_date_end_year(
 
 
 @pytest.mark.parametrize(
-    "start_year, end_year, expected_final_fopt, expectation",
+    ("start_year", "end_year", "expected_final_fopt", "expectation"),
     # NB: start_year is deprecated in favour of start_date
     [
         # The mocked Summary object contains data every tenth date from
@@ -347,7 +347,7 @@ def test_config_invalid_file(tmpdir):
         fout.write("object:\n")
         fout.write("    key: value :\n")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Could not load config file"):
         SteaInput("config_file")
 
 
@@ -379,7 +379,7 @@ def test_config_invalid_date(tmpdir):
     with open("config_file", "w", encoding="utf-8") as fout:
         fout.write(f"{SteaInputKeys.CONFIG_DATE}: No-not-a-date")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Could not load config file"):
         SteaInput("config_file")
 
 
@@ -397,7 +397,9 @@ def test_input_argv(tmpdir):
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
-    with pytest.raises(IOError):
+    with pytest.raises(
+        IOError, match="Failed to create summary instance from argument"
+    ):
         SteaInput("config_file", "CSV")
 
     case = create_case()
