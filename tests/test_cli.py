@@ -78,7 +78,7 @@ def test_stea_response():
     runner = CliRunner()
     result = runner.invoke(main_entry_point, ["-c", "stea_input.yml"])
     assert result.exit_code == 0
-    with open("stea_response.json", "r", encoding="utf-8") as fin:
+    with open("stea_response.json", encoding="utf-8") as fin:
         result = json.load(fin)
     assert result == expected_result
 

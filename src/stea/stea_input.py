@@ -1,22 +1,18 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import yaml
 from resdata.summary import Summary
 
 from .stea_config import SteaConfig
 
-if TYPE_CHECKING:
-    from typing import Optional
-
 
 class SteaInput:
     # pylint: disable=too-few-public-methods
-    def __init__(self, config_file: Path, ecl_case: Optional[str] = None):
+    def __init__(self, config_file: Path, ecl_case: str | None = None):
         try:
-            with open(config_file, "r", encoding="utf-8") as fin:
+            with open(config_file, encoding="utf-8") as fin:
                 config_dict = yaml.safe_load(fin)
                 if ecl_case:
                     if "ecl-case" in config_dict:

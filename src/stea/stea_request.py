@@ -1,6 +1,5 @@
 import datetime
 import sys
-from typing import List, Optional
 
 from resdata.summary import Summary
 
@@ -51,9 +50,9 @@ class SteaRequest:
         self,
         profile_id: str,
         key: str,
-        start_date: Optional[datetime.date] = None,
-        end_year: Optional[int] = None,
-        multiplier: Optional[List[float]] = None,
+        start_date: datetime.date | None = None,
+        end_year: int | None = None,
+        multiplier: list[float] | None = None,
         global_multiplier: float = 1,
     ):
         if multiplier is None:

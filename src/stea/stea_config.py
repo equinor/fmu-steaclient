@@ -1,5 +1,4 @@
 from datetime import date, datetime
-from typing import Dict, Optional
 
 from pydantic import (
     BaseModel,
@@ -21,7 +20,7 @@ def replace_dash(string: str) -> str:
 class SimulatorProfile(BaseModel):
     model_config = ConfigDict(populate_by_name=True, alias_generator=replace_dash)
     ecl_key: str = Field(description="Summary key")
-    start_date: Optional[date] = Field(
+    start_date: date | None = Field(
         None,
         description=(
             "By default fmu-steaclient will calculate a profile from the full "
@@ -30,18 +29,18 @@ class SimulatorProfile(BaseModel):
             "start_date is included. Date format is YYYY-MM-DD."
         ),
     )
-    start_year: Optional[int] = Field(None, description="Deprecated. Use start_date")
-    end_year: Optional[int] = Field(
+    start_year: int | None = Field(None, description="Deprecated. Use start_date")
+    end_year: int | None = Field(
         None,
         description=(
             "Set an explicit last year for the data to extract from a profile. All "
             "data up until the last day of this year will be included."
         ),
     )
-    mult: Optional[conlist(float, min_length=1)] = Field(
+    mult: conlist(float, min_length=1) | None = Field(
         None, description="List of multipliers of summary key"
     )
-    glob_mult: Optional[float] = Field(
+    glob_mult: float | None = Field(
         None, description="A single global multiplier of summary key"
     )
 
@@ -59,7 +58,7 @@ class Profile(BaseModel):
     start_year: int = Field(
         description="Start year",
     )
-    data: Optional[conlist(float, min_length=1)] = Field(
+    data: conlist(float, min_length=1) | None = Field(
         description="Values",
     )
 
@@ -79,7 +78,7 @@ class SteaConfig(BaseModel):
     project_version: int = Field(
         description="Project alternative version number that comes from stea database",
     )
-    profiles: Dict[str, Profile] = Field(
+    profiles: dict[str, Profile] = Field(
         {},
         description=(
             "The profiles keyword is used to enter profile data explicitly in the "
@@ -87,7 +86,7 @@ class SteaConfig(BaseModel):
             "existing stea project, a start year and the actual data."
         ),
     )
-    ecl_profiles: Dict[str, SimulatorProfile] = Field(
+    ecl_profiles: dict[str, SimulatorProfile] = Field(
         description=(
             "Profiles which are calculated directly from a reservoir simulation. "
             "They are listed with the ecl-profiles ecl_key."
@@ -96,7 +95,7 @@ class SteaConfig(BaseModel):
     results: conlist(str, min_length=1) = Field(
         description="Specify what STEA should calculate"
     )
-    ecl_case: Optional[str] = Field(None, description="ecl case location")
+    ecl_case: str | None = Field(None, description="ecl case location")
     stea_server: str = Field(
         SteaKeys.PRODUCTION_SERVER,
         description="stea server host",

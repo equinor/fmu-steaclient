@@ -67,6 +67,7 @@ select = [
   "PL",  # pylint
   "NPY",  # numpy specific rules
   "C4",  # flake8-comprehensions
+  "UP",  # pyupgrade
 ]
 
 [tool.ruff.lint.pylint]
