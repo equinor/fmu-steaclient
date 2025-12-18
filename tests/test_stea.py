@@ -2,10 +2,13 @@ import datetime
 import os
 import pathlib
 from contextlib import ExitStack as does_not_raise
+from typing import TYPE_CHECKING
 
 import pytest
 import yaml
-from resdata.summary import Summary
+
+if TYPE_CHECKING:
+    from resdata.summary import Summary
 from resdata.util.test.mock import createSummary
 
 from stea import (
