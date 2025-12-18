@@ -33,7 +33,8 @@ class SteaRequest:
 
     def add_profile(self, profile_id, start_year, data):
         if not self.project.has_profile(profile_id):
-            raise KeyError(f"Invalid profile id: {profile_id} for this project")
+            msg = f"Invalid profile id: {profile_id} for this project"
+            raise KeyError(msg)
 
         profile_data = {
             SteaKeys.PROFILE_ID: profile_id,
@@ -61,13 +62,13 @@ class SteaRequest:
             multiplier = [1]
 
         if self.stea_input.ecl_case is None:
-            raise ValueError(
-                "When adding ecl_profile you must configure an Eclipse case"
-            )
+            msg = "When adding ecl_profile you must configure an Eclipse case"
+            raise ValueError(msg)
 
         case: Summary = self.stea_input.ecl_case
         if key not in case:
-            raise KeyError(f"No such summary key: {key}")
+            msg = f"No such summary key: {key}"
+            raise KeyError(msg)
 
         if start_date is None:
             start_date = case.start_date

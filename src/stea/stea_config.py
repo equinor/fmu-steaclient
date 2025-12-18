@@ -47,7 +47,8 @@ class SimulatorProfile(BaseModel):
     @model_validator(mode="after")
     def check_start_year(self) -> Self:
         if self.start_year is not None and self.start_date is not None:
-            raise ValueError("Do not provide both start_year and start_date")
+            msg = "Do not provide both start_year and start_date"
+            raise ValueError(msg)
         if self.start_year:
             self.start_date = date(self.start_year, 1, 1)
         return self

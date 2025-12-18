@@ -33,13 +33,15 @@ class SteaClient:
             response = requests.get(url, verify=False, timeout=60)
 
             # pylint: disable=no-member
-            if not response.status_code == requests.codes.ok:
-                raise HTTPError(
+            if response.status_code != requests.codes.ok:
+                msg = (
                     f"Could not GET from: {url}  "
                     f"status: {response.status_code} msg: {response.text}"
                 )
+                raise HTTPError(msg)
         except RequestException as error:
-            raise RuntimeError(f"HTTP GET form {url} failed") from error
+            msg = f"HTTP GET form {url} failed"
+            raise RuntimeError(msg) from error
 
         # Do not really understand this: When pasting the url in the browser
         # field an XML document comes up, but the returned text seems to be a
@@ -55,12 +57,14 @@ class SteaClient:
         try:
             response = requests.post(url, json=request.data(), verify=False, timeout=60)
             # pylint: disable=no-member
-            if not response.status_code == requests.codes.ok:
-                raise HTTPError(
+            if response.status_code != requests.codes.ok:
+                msg = (
                     f"Could not post to: {url}  status: {response.status_code} "
                     f"msg: {response.text}"
                 )
+                raise HTTPError(msg)
         except RequestException as error:
-            raise RuntimeError(f"HTTP POST to {url} failed") from error
+            msg = f"HTTP POST to {url} failed"
+            raise RuntimeError(msg) from error
 
         return json.loads(response.text)

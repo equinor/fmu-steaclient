@@ -16,4 +16,5 @@ class SteaResult:
 
                 return res
 
-        raise KeyError(f"No such tax mode: {tax_mode}")
+        msg = f"No such tax mode: {tax_mode}"
+        raise KeyError(msg)
