@@ -63,6 +63,7 @@ select = [
   "C4",  # flake8-comprehensions
   "ERA",
   "F",   # pyflakes
+  "EM",  # flake8-errmsg
   "I",   # isort
   "NPY", # numpy specific rules
   "PL",  # pylint
