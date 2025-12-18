@@ -3,10 +3,15 @@
 
 # fmu-steaclient
 
-fmu-steaclient is a HTTP client for Stea calculations, some documentation can be found in
-the [stea/__init__.py](``stea/__init__.py``) file. The source code in this project
-is a Python package, to actually use it you will need to write your own
+fmu-steaclient is a HTTP client for Stea calculations. The source code in this
+project is a Python package, to actually use it you will need to write your own
 executable script.
+
+Stea is an Equinor application to perform economic analysis. The application is
+an interactive windows application. In addition to the desktop application
+there is a server solution for storage of projects and calculations service.
+The purpose of this Python package is to invoke a Stea economic analysis on the
+server.
 
 The main way to configure the stea client is through a yaml file, an example
 configuration file is shown here:
@@ -96,7 +101,9 @@ if __name__ == "__main__":
 
 ```
 
+
 # Development
+
 
 ## Installation
 
@@ -119,3 +126,61 @@ All commits to the repository must pass these commands, formatting and linting t
 ruff check --fix .
 ruff format .
 ```
+
+
+## Developer information
+
+This client only gives access to a very limited amount of the Stea
+capabilities. The workflow for using this client is as follows:
+
+ 1. A Stea project is defined using the Stea desktop application. This project
+    must be 100% complete.
+
+ 2. The profiles - i.e. yearly cost and income for the project can be adjusted,
+    the principle for this client is to post adjusted profiles to the server.
+
+### Class overview
+
+#### SteaKeys
+
+This a set of string constants which are used in the schema for HTTP
+communication with the Stea server.
+
+#### SteaInput
+
+This is a small configuration object internalizing the input to the Stea
+calculations. The input typically includes:
+
+* Id of the Stea project, this is given both as an ID and a version.
+
+* If of the profiles which can should be adjusted, and the eclipse key
+  used to fetch them or alternatively the values themselves.
+
+The input is currrently given as a YAML formatted file.
+
+#### SteaInputKeys
+
+A set of string constants used in the YAML input file.
+
+#### SteaClient
+
+A small class with a method to POST results to the Stea server and a method to
+GET project data from the server.
+
+#### SteaProject
+
+Some information from the real stea project is needed to create the calculation
+request. This information is internalized in the SteaProject class. The project
+is created by doing a http GET from the server.
+
+####  SteaRequest
+
+The payload passed in the HTTP POST request is assembled in a SteaRequest
+object.
+
+#### SteaResult
+
+Small wrapping of the return value from the stea calculation.
+"""
+
+>>>>>>> 69bdaa9 (Move documentation from source code to README)
