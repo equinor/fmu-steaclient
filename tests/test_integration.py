@@ -47,7 +47,7 @@ def setup_tmpdir(tmp_path, monkeypatch):
 
 @pytest.mark.usefixtures("setup_tmpdir")
 @pytest.mark.parametrize(
-    "ecl_case, ecl_base, fm_options",
+    ("ecl_case", "ecl_base", "fm_options"),
     [
         ("NORNE_ATW2013", "random_eclbase", ""),
         ("a_random_ecl_case", "<CONFIG_PATH>/NORNE_ATW2013", ",<ECL_CASE>=<ECLBASE>"),
