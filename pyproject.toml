@@ -47,6 +47,7 @@ package-dir = {"" = "src"}
 ert = ["ert"]
 test = [
 "fmu-steaclient[ert]",
+"pre-commit",
 "pytest",
 "pytest-mock",
 "pytest-httpserver",
