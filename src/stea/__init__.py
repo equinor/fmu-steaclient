@@ -4,10 +4,10 @@ except ImportError:
     __version__ = "0.0.0"
 
 from .stea_client import SteaClient
-from .stea_config import SteaConfig  # noqa
-from .stea_input import SteaInput  # noqa
-from .stea_keys import SteaInputKeys, SteaKeys  # noqa
-from .stea_project import SteaProject  # noqa
+from .stea_config import SteaConfig  # noqa: F401
+from .stea_input import SteaInput
+from .stea_keys import SteaInputKeys, SteaKeys  # noqa: F401
+from .stea_project import SteaProject
 from .stea_request import SteaRequest
 from .stea_result import SteaResult
 
