@@ -50,7 +50,6 @@ class SteaClient:
         return SteaProject(project)
 
     def calculate(self, request):
-        # self._validate_request()
         url = f"{self.server}/api/v1/Calculate/"
         try:
             response = requests.post(url, json=request.data(), verify=False, timeout=60)
