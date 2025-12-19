@@ -66,6 +66,7 @@ select = [
   "EM",  # flake8-errmsg
   "I",   # isort
   "NPY", # numpy specific rules
+  "PGH",
   "PL",  # pylint
   "PT",  # pytest
   "SIM", # flake-8-simplify
