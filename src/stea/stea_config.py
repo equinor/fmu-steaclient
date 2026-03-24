@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Self
 
 from pydantic import (
     BaseModel,
@@ -8,7 +9,6 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from typing_extensions import Self
 
 from .stea_keys import SteaKeys
 
