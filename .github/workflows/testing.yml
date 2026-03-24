@@ -8,10 +8,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
         os: [ubuntu-latest]
         include:
-          - python-version: 3.13
+          - python-version: 3.13  # Missing scipy wheels for 3.14 on Macos
             os: macos-latest
 
     steps:
