@@ -40,7 +40,7 @@ class SteaClient:
                 )
                 raise HTTPError(msg)
         except RequestException as error:
-            msg = f"HTTP GET form {url} failed"
+            msg = f"HTTP GET from {url} failed"
             raise RuntimeError(msg) from error
 
         # Do not really understand this: When pasting the url in the browser

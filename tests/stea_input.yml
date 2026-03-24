@@ -5,7 +5,7 @@ project-version: 1
 
 
 # All information in stea is versioned with a timestamp. When we request a
-# calculation we must specify wich date we wish to use to fetch configuration
+# calculation we must specify which date we wish to use to fetch configuration
 # information for assumptions like e.g. the oil price.
 config-date: 2018-07-01
 
@@ -27,7 +27,7 @@ profiles:
 
 # Profiles which are calculated directly from an eclipse simulation are
 # listed with the ecl-profiles key. Each profile is identified with an id
-# from the stea project and an eclipe key like 'FOPT'. By default the stea
+# from the stea project and an eclipse key like 'FOPT'. By default the stea
 # client will calculate a profile from the full time range of the simulated
 # data, but you can optionally use the keywords start-year and end-year to
 # limit the time range.

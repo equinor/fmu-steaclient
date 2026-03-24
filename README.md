@@ -24,7 +24,7 @@ project-version: 1
 
 
 # All information in stea is versioned with a timestamp. When we request a
-# calculation we must specify wich date we wish to use to fetch configuration
+# calculation we must specify which date we wish to use to fetch configuration
 # information for assumptions like e.g. the oil price.
 config-date: 2018-07-01 12:00:00
 
@@ -153,10 +153,10 @@ calculations. The input typically includes:
 
 * Id of the Stea project, this is given both as an ID and a version.
 
-* If of the profiles which can should be adjusted, and the eclipse key
+* Id of the profiles which should be adjusted, and the eclipse key
   used to fetch them or alternatively the values themselves.
 
-The input is currrently given as a YAML formatted file.
+The input is currently given as a YAML formatted file.
 
 #### SteaInputKeys
 
@@ -181,6 +181,3 @@ object.
 #### SteaResult
 
 Small wrapping of the return value from the stea calculation.
-"""
-
->>>>>>> 69bdaa9 (Move documentation from source code to README)

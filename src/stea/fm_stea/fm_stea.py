@@ -42,7 +42,7 @@ def main_entry_point(config, ecl_case, response_file):
     yaml config file, STEA will create result files
     ex: Res1_0, Res2_0, .. Res#_0"""
     try:
-        if ecl_case == "__NONE__":  # This is because ert cant handle optionals
+        if ecl_case == "__NONE__":  # This is because ert can't handle optionals
             ecl_case = None
         stea_input = stea.SteaInput(config, ecl_case)
         result = stea.calculate(stea_input)
