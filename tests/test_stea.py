@@ -5,7 +5,6 @@ from contextlib import ExitStack as does_not_raise
 
 import pytest
 import yaml
-
 from resdata.summary import Summary
 
 from stea import (
@@ -26,101 +25,42 @@ TEST_SERVER = "S723WS007.statoil.net"
 TEST_SERVER_URL = f"https://{TEST_SERVER}:1702"
 
 
-def fopr(_days):
-    return 1
-
-
-def fopt(days):
-    return days
-
-
-def fgpt(days):
-    if days < 50:
-        return days
-    return 100 - days
-
-
-def mock_func(rd_sum, key, days):
-    return days * 10
-
-
-def createSummary(
-    case,
-    keys,
+def create_case(  # noqa: PLR0913
+    case="CSV",
+    keys=(
+        ("FOPT", None, 0, "SM3"),
+        ("FOPR", None, 0, "SM3/DAY"),
+        ("FGPT", None, 0, "SM3"),
+    ),
     sim_start=datetime.date(2010, 1, 1),
-    data_start=None,
-    sim_length_days=5 * 365,
-    num_report_step=5,
+    sim_days=1000,
+    num_report_step=10,
     num_mini_step=10,
     dims=(20, 10, 5),
-    func_table={},
+    func_table=None,
     restart_case=None,
     restart_step=-1,
-):
-    rd_sum = Summary.restart_writer(
-        case, restart_case, restart_step, sim_start, dims[0], dims[1], dims[2]
-    )
-    var_list = []
-    for kw, wgname, num, unit in keys:
-        var_list.append(rd_sum.add_variable(kw, wgname=wgname, num=num, unit=unit))
+) -> Summary:
+    if func_table is None:
+        func_table = {
+            "FOPT": lambda days: days,
+            "FOPR": lambda _: 1,
+            "FGPT": lambda days: days if days < 50 else 100 - days,
+        }
+    rd_sum = Summary.restart_writer(case, restart_case, restart_step, sim_start, *dims)
+    var_list = [rd_sum.add_variable(*k).get_key1() for k in keys]
 
-    # This is a bug! This should not be integer division, but tests are written
-    # around that assumption.
-    report_step_length = (
-        0.0 if num_report_step == 0 else float(sim_length_days // num_report_step)
-    )
-    mini_step_length = (
-        0.0 if num_mini_step == 0 else float(report_step_length // num_mini_step)
-    )
-
-    if data_start is None:
-        time_offset = 0
-    else:
-        dt = data_start - sim_start
-        time_offset = dt.total_seconds() / 86400.0
+    report_length = 0.0 if num_report_step == 0 else float(sim_days / num_report_step)
+    mini_length = 0.0 if num_mini_step == 0 else float(report_length / num_mini_step)
 
     for report_step in range(num_report_step):
         for mini_step in range(num_mini_step):
-            days = (
-                time_offset
-                + report_step * report_step_length
-                + mini_step * mini_step_length
-            )
+            days = report_step * report_length + mini_step * mini_length
             t_step = rd_sum.add_t_step(report_step + 1, sim_days=days)
-
-            for var in var_list:
-                key = var.get_key1()
-                key2 = var.get_key2()
-                if key and key2:
-                    assert var.keyword in key
-                    assert var.keyword in key2
-
-                if key in func_table:
-                    func = func_table[key]
-                    t_step[key] = func(days)
-                else:
-                    t_step[key] = mock_func(rd_sum, key, days)
+            for key in var_list:
+                t_step[key] = func_table[key](days)
 
     return rd_sum
-
-
-def create_case(case="CSV", restart_case=None, restart_step=-1, data_start=None):
-    length = 1000
-    return createSummary(
-        case,
-        [
-            ("FOPT", None, 0, "SM3"),
-            ("FOPR", None, 0, "SM3/DAY"),
-            ("FGPT", None, 0, "SM3"),
-        ],
-        sim_length_days=length,
-        num_report_step=10,
-        num_mini_step=10,
-        data_start=data_start,
-        func_table={"FOPT": fopt, "FOPR": fopr, "FGPT": fgpt},
-        restart_case=restart_case,
-        restart_step=restart_step,
-    )
 
 
 def online():
@@ -173,15 +113,15 @@ def test_project(mock_project):
 @pytest.mark.parametrize(
     ("ecl_unit", "project_unit", "scale_factor", "expected_fopt0"),
     [
-        ("SM3", "Sm3", "Mill", fopr(0) * 365 / 1e6),
-        ("SM3", "Bbl", "Mill", fopr(0) * 365 / 1e6 * BARRELS_PR_SM3),
-        ("bogus", "Sm3", "Mill", fopr(0) * 365 / 1e6),
-        ("SM3", "bogus", "Mill", fopr(0) * 365 / 1e6),
-        ("SM3", "Sm3", "1", fopr(0) * 365),
-        ("Bogus", "Sm3", "1", fopr(0) * 365),
-        ("SM3", "Bbl", "1", fopr(0) * 365 * BARRELS_PR_SM3),
-        ("SM3", "Sm3", "1000 Mill", fopr(0) * 365 / 1e9),
-        ("SM3", "Bbl", "1000 Mill", fopr(0) * 365 / 1e9 * BARRELS_PR_SM3),
+        ("SM3", "Sm3", "Mill", 365 / 1e6),  # FOPR is 1 for all days
+        ("SM3", "Bbl", "Mill", 365 / 1e6 * BARRELS_PR_SM3),
+        ("bogus", "Sm3", "Mill", 365 / 1e6),
+        ("SM3", "bogus", "Mill", 365 / 1e6),
+        ("SM3", "Sm3", "1", 365),
+        ("Bogus", "Sm3", "1", 365),
+        ("SM3", "Bbl", "1", 365 * BARRELS_PR_SM3),
+        ("SM3", "Sm3", "1000 Mill", 365 / 1e9),
+        ("SM3", "Bbl", "1000 Mill", 365 / 1e9 * BARRELS_PR_SM3),
     ],
 )
 def test_units_and_scale_factor(
