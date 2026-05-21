@@ -77,7 +77,18 @@ results:
    - NPV
 ```
 
-A minimal example script using the `fmu-steaclient` package could be:
+## Usage from ERT
+
+This library installs itself as a forward model step for [Ert](https://github.com/equinor/ert) and
+can be called from an Ert model as in the example:
+
+```
+FORWARD_MODEL STEA(<CONFIG>=config.yml)
+```
+
+
+## Standalone usage
+An minimal example script using the `fmu-steaclient` package could be:
 
 ```python
 #!/usr/bin/env python
