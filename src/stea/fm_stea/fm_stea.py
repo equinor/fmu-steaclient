@@ -38,9 +38,14 @@ def main_entry_point(config, ecl_case, response_file):
     """STEA is a powerful economic analysis tool used for complex economic
     analysis and portfolio optimization. STEA helps you analyze single
     projects, large and small portfolios and complex decision trees.
-    As output, for each of the entries in the result section of the
-    yaml config file, STEA will create result files
-    ex: Res1_0, Res2_0, .. Res#_0"""
+
+    As output STEA will create result files named according to
+    the results specified in the configuration,
+    ex: NPV_0, IRR_0, CEI_0, BreakEven_0.
+
+    See https://github.com/equinor/fmu-steaclient for documentation of the
+    yaml config file.
+    """
     try:
         if ecl_case == "__NONE__":  # This is because ert can't handle optionals
             ecl_case = None
