@@ -474,7 +474,7 @@ def test_calculate(set_up, tmpdir):
             set_up.fopt_profile_id: {SteaInputKeys.ECL_KEY: "FOPT"},
         },
         SteaInputKeys.SERVER: TEST_SERVER_URL,
-        SteaInputKeys.RESULTS: ["NPV"],
+        SteaInputKeys.RESULTS: ["NPV", "IRR"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
     pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
@@ -482,6 +482,7 @@ def test_calculate(set_up, tmpdir):
     stea_input = SteaInput("config_file")
     results = calculate(stea_input)
     assert pytest.approx(results.results(SteaKeys.CORPORATE)["NPV"]) == 536.137196
+    assert pytest.approx(results.results(SteaKeys.PRETAX)["IRR"]) == -0.205244738
 
 
 def test_results(set_up, tmpdir, mock_result):
