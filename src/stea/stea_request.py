@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from resdata.summary import Summary
 
+import operator
+
 from .stea_keys import SteaKeys
 
 
@@ -117,7 +119,7 @@ class SteaRequest:
 
         mult_rangeend = min(len(multiplier), len(data))
         data[:mult_rangeend] = map(
-            lambda x, y: x * y, data[:mult_rangeend], multiplier[:mult_rangeend]
+            operator.mul, data[:mult_rangeend], multiplier[:mult_rangeend]
         )
 
         data = [x * global_multiplier for x in data]
