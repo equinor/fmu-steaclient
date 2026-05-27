@@ -11,7 +11,7 @@ from .stea_config import SteaConfig
 class SteaInput:
     # pylint: disable=too-few-public-methods
     def __init__(self, config_file: Path, ecl_case: str | None = None):
-        try:
+        try:  # noqa: PLW0717
             config_dict = yaml.safe_load(Path(config_file).read_text(encoding="utf-8"))
             if ecl_case:
                 if "ecl-case" in config_dict:
