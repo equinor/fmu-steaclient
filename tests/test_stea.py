@@ -378,8 +378,9 @@ def test_config(tmpdir):
 
 def test_config_invalid_date(tmpdir):
     os.chdir(tmpdir)
-    with open("config_file", "w", encoding="utf-8") as fout:
-        fout.write(f"{SteaInputKeys.CONFIG_DATE}: No-not-a-date")
+    pathlib.Path("config_file").write_text(
+        f"{SteaInputKeys.CONFIG_DATE}: No-not-a-date", encoding="utf-8"
+    )
 
     with pytest.raises(ValueError, match="Could not load config file"):
         SteaInput("config_file")

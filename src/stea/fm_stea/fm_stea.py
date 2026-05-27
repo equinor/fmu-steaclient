@@ -1,5 +1,6 @@
 import json
 import shutil
+from pathlib import Path
 
 import click
 from ert import (
@@ -52,8 +53,7 @@ def main_entry_point(config, ecl_case, response_file):
         stea_input = stea.SteaInput(config, ecl_case)
         result = stea.calculate(stea_input)
         for res, value in result.results(stea.SteaKeys.CORPORATE).items():
-            with open(f"{res}_0", "w", encoding="utf-8") as ofh:
-                ofh.write(f"{value}\n")
+            Path(f"{res}_0").write_text(f"{value}\n", encoding="utf-8")
         profiles = _get_profiles(
             stea_input.stea_server,
             stea_input.project_id,
