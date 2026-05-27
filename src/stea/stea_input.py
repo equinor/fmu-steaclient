@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from pathlib import Path
 
 import yaml
 from resdata.summary import Summary
@@ -14,14 +11,13 @@ from .stea_config import SteaConfig
 class SteaInput:
     # pylint: disable=too-few-public-methods
     def __init__(self, config_file: Path, ecl_case: str | None = None):
-        try:  # noqa: PLW0717
-            with open(config_file, encoding="utf-8") as fin:
-                config_dict = yaml.safe_load(fin)
-                if ecl_case:
-                    if "ecl-case" in config_dict:
-                        del config_dict["ecl-case"]
-                    config_dict["ecl_case"] = ecl_case
-                config = SteaConfig(**config_dict)
+        try:
+            config_dict = yaml.safe_load(Path(config_file).read_text(encoding="utf-8"))
+            if ecl_case:
+                if "ecl-case" in config_dict:
+                    del config_dict["ecl-case"]
+                config_dict["ecl_case"] = ecl_case
+            config = SteaConfig(**config_dict)
 
             self.config = config
 

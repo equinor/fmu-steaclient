@@ -1,5 +1,6 @@
 import copy
 from datetime import date, datetime
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
@@ -43,7 +44,7 @@ def test_minimal_config(ecl_case, monkeypatch, config_date):
     summary = MagicMock()
     monkeypatch.setattr(stea_input, "Summary", summary)
 
-    with open("config_file.yml", "w", encoding="utf-8") as fout:
+    with Path("config_file.yml").open("w", encoding="utf-8") as fout:
         yaml.dump(valid_config, fout)
 
     stea_input.SteaInput("config_file.yml", ecl_case)
@@ -70,8 +71,7 @@ def test_invalid_config(required_key, monkeypatch):
     summary = MagicMock()
     monkeypatch.setattr(stea_input, "Summary", summary)
 
-    with open("config_file.yml", "w", encoding="utf-8") as fout:
-        yaml.dump(invalid_dict, fout)
+    Path("config_file.yml").write_text(yaml.dump(invalid_dict), encoding="utf-8")
 
     with pytest.raises(ValueError, match="Could not load config file"):
         stea_input.SteaInput("config_file.yml", None)
@@ -102,7 +102,6 @@ def test_overwrite_ecl_case(tmp_path, monkeypatch, ecl_case):
     summary = MagicMock()
     monkeypatch.setattr(stea_input, "Summary", summary)
 
-    with open("config_file.yml", "w", encoding="utf-8") as fout:
-        yaml.dump(valid_config, fout)
+    Path("config_file.yml").write_text(yaml.dump(valid_config), encoding="utf-8")
     config = stea_input.SteaInput("config_file.yml", "another_case").config
     assert config.ecl_case == "another_case"

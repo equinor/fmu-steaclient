@@ -1,7 +1,7 @@
 import datetime
 import os
-import pathlib
 from contextlib import ExitStack as does_not_raise
+from pathlib import Path
 
 import pytest
 import yaml
@@ -141,7 +141,7 @@ def test_units_and_scale_factor(
         SteaInputKeys.RESULTS: ["npv"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
     assert ecl_unit  # pylint
 
@@ -249,7 +249,7 @@ def test_start_date_end_year(
         SteaInputKeys.RESULTS: ["npv"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
     # Mock ECL binary output files:
     case: Summary = create_case()
     case.fwrite()
@@ -319,7 +319,7 @@ def test_start_year_end_year(
         SteaInputKeys.RESULTS: ["npv"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
     # Mock ECL binary output files:
     case: Summary = create_case()
     case.fwrite()
@@ -345,7 +345,7 @@ def test_config_not_exists(tmpdir):
 
 def test_config_invalid_file(tmpdir):
     os.chdir(tmpdir)
-    with open("config_file", "w", encoding="utf-8") as fout:
+    with Path("config_file").open("w", encoding="utf-8") as fout:
         fout.write("object:\n")
         fout.write("    key: value :\n")
 
@@ -365,7 +365,7 @@ def test_config(tmpdir):
         },
         SteaInputKeys.RESULTS: ["npv"],
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
     stea_input = SteaInput("config_file")
     assert stea_input.config_date == datetime.datetime(2018, 10, 10, 12, 0, 0)
     assert stea_input.project_id == 1234
@@ -378,7 +378,7 @@ def test_config(tmpdir):
 
 def test_config_invalid_date(tmpdir):
     os.chdir(tmpdir)
-    pathlib.Path("config_file").write_text(
+    Path("config_file").write_text(
         f"{SteaInputKeys.CONFIG_DATE}: No-not-a-date", encoding="utf-8"
     )
 
@@ -398,7 +398,7 @@ def test_input_argv(tmpdir):
         },
         SteaInputKeys.RESULTS: ["npv"],
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
     with pytest.raises(
         IOError, match="Failed to create summary instance from argument"
@@ -422,7 +422,7 @@ def test_request1(tmpdir, mock_project):
         },
         SteaInputKeys.RESULTS: ["npv"],
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
     stea_input = SteaInput("config_file")
     case = create_case()
@@ -452,7 +452,7 @@ def test_request2(tmpdir, mock_project):
         SteaInputKeys.RESULTS: ["npv"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
     stea_input = SteaInput("config_file")
     request = SteaRequest(stea_input, mock_project)
@@ -480,7 +480,7 @@ def test_calculate(set_up, tmpdir):
         SteaInputKeys.RESULTS: ["NPV", "IRR"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
     stea_input = SteaInput("config_file")
     results = calculate(stea_input)
@@ -503,7 +503,7 @@ def test_results(set_up, tmpdir, mock_result):
         SteaInputKeys.RESULTS: ["NPV"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
     stea_input = SteaInput("config_file")
 
@@ -541,7 +541,7 @@ def test_mult(set_up, tmpdir):
         SteaInputKeys.RESULTS: ["NPV"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
     stea_input = SteaInput("config_file")
     results = calculate(stea_input)
@@ -567,7 +567,7 @@ def test_desc(set_up, tmpdir):
         SteaInputKeys.RESULTS: ["NPV"],
         SteaInputKeys.ECL_CASE: "CSV",
     }
-    pathlib.Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
+    Path("config_file").write_text(yaml.dump(config), encoding="utf-8")
 
     stea_input = SteaInput("config_file")
     results = calculate(stea_input)

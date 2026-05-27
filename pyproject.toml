@@ -69,7 +69,6 @@ ignore = [
   "DOC",
   "DTZ",
   "N",
-  "PTH",
   "S",
 ]
 

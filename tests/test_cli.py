@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -10,15 +11,15 @@ import stea
 from stea import SteaKeys, SteaResult
 from stea.fm_stea.fm_stea import main_entry_point
 
-TEST_STEA_PATH, _ = os.path.split(os.path.abspath(__file__))
+TEST_STEA_PATH = Path(__file__).resolve().parent
 
 
 @pytest.fixture(name="setup_stea")
 def fixture_setup_stea(tmpdir):
-    cwd = os.getcwd()
+    cwd = Path.cwd()
     tmpdir.chdir()
     shutil.copytree(TEST_STEA_PATH, "stea")
-    os.chdir(os.path.join("stea"))
+    os.chdir("stea")
     yield
     os.chdir(cwd)
 
@@ -63,7 +64,7 @@ def test_stea():
     runner = CliRunner()
     result = runner.invoke(main_entry_point, ["-c", "stea_input.yml"])
     assert result.exit_code == 0
-    files = os.listdir(os.getcwd())
+    files = [file.name for file in Path.cwd().iterdir()]
     # the resulting file i.e. key is defined in the input config file: stea_input.yml
     assert "NPV_0" in files
     assert "stea_response.json" in files
@@ -78,7 +79,7 @@ def test_stea_response():
     runner = CliRunner()
     result = runner.invoke(main_entry_point, ["-c", "stea_input.yml"])
     assert result.exit_code == 0
-    with open("stea_response.json", encoding="utf-8") as fin:
+    with Path("stea_response.json").open(encoding="utf-8") as fin:
         result = json.load(fin)
     assert result == expected_result
 
