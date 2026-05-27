@@ -18,11 +18,10 @@ BARRELS_PR_SM3 = 6.2898
 
 
 class SteaRequest:
-    units = {"Bbl": {"SM3": BARRELS_PR_SM3}, "Sm3": {"SM3": 1.0}}
-
-    scale_factors = {"1": 1.0, "Mill": 1.0e-6, "1000 Mill": 1.0e-9}
-
     def __init__(self, stea_input, project):
+        self.units = {"Bbl": {"SM3": BARRELS_PR_SM3}, "Sm3": {"SM3": 1.0}}
+        self.scale_factors = {"1": 1.0, "Mill": 1.0e-6, "1000 Mill": 1.0e-9}
+
         self.stea_input = stea_input
         self.project = project
         self.request_data = {
@@ -59,7 +58,7 @@ class SteaRequest:
         end_year: int | None = None,
         multiplier: list[float] | None = None,
         global_multiplier: float = 1,
-    ):  # noqa: PLR0914
+    ):
         if multiplier is None:
             multiplier = [1]
 
