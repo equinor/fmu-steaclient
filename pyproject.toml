@@ -58,61 +58,21 @@ test = [
 line-length = 88
 
 [tool.ruff.lint]
-select = [
-  "A",
-  "AIR",
-  "ARG",
-  "ASYNC",
-  "B",   # flake-8-bugbear
-  "BLE",
-  "C4",  # flake8-comprehensions
-  "DJ",
-  "E",
-  "EM",  # flake8-errmsg
-  "ERA",
-  "EXE",
-  "F",   # pyflakes
-  "FA",
-  "FAST",
-  "FBT",
-  "FIX",
-  "FLY",
-  "FURB",
-  "G",
-  "I",   # isort
-  "ICN",
-  "INP",
-  "INT",
-  "ISC",
-  "LOG",
-  "NPY", # numpy specific rules
-  "PD",
-  "PERF",
-  "PGH",
-  "PIE",
-  "PL",  # pylint
-  "PLC",
-  "PLE",
-  "PLR",
-  "PLW",
-  "PT",  # pytest
-  "PYI",
-  "Q",
-  "RET",
-  "RSE",
-  "SIM", # flake-8-simplify
-  "SLF",
-  "SLOT",
-  "T",
-  "TC",  # flake-8-typechecking
-  "TD",
-  "TID",
-  "TRY",
-  "UP",  # pyupgrade
-  "W",   # pycodestyle
-  "YTT"
-]
+select = ["ALL"]
 preview = true
+ignore = [
+  "ANN",
+  "C",
+  "COM",
+  "CPY",
+  "D",
+  "DOC",
+  "DTZ",
+  "N",
+  "PTH",
+  "RUF",
+  "S",
+]
 
 [tool.ruff.lint.pylint]
 max-args = 7
