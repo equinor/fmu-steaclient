@@ -46,7 +46,7 @@ def main_entry_point(config, ecl_case, response_file):
     See https://github.com/equinor/fmu-steaclient for documentation of the
     yaml config file.
     """
-    try:
+    try:  # noqa: PLW0717
         if ecl_case == "__NONE__":  # This is because ert can't handle optionals
             ecl_case = None
         stea_input = stea.SteaInput(config, ecl_case)
