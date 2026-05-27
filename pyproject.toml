@@ -70,7 +70,6 @@ ignore = [
   "DTZ",
   "N",
   "PTH",
-  "RUF067",
   "S",
 ]
 
