@@ -26,6 +26,7 @@ TEST_SERVER_URL = f"https://{TEST_SERVER}:1702"
 
 
 def create_case(  # noqa: PLR0913
+    *,
     case="CSV",
     keys=(
         ("FOPT", None, 0, "SM3"),

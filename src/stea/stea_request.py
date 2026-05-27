@@ -57,7 +57,7 @@ class SteaRequest:
         end_year: int | None = None,
         multiplier: list[float] | None = None,
         global_multiplier: float = 1,
-    ):
+    ):  # noqa: PLR0914
         if multiplier is None:
             multiplier = [1]
 
@@ -90,7 +90,6 @@ class SteaRequest:
                 interval="1d",
             )
 
-        time_range = case.time_range(start=start_year_jan1, end=end_date, interval="1y")
         ecl_unit = case.unit(key)
 
         unit = self.project.get_profile_unit(profile_id)
@@ -103,7 +102,12 @@ class SteaRequest:
                 f"Default conversion between {unit} and {ecl_unit} to 1.\n"
             )
         unit_conversion = unitfactor * self.scale_factors[mult]
-        data = list(case.blocked_production(key, time_range) * unit_conversion)
+        data = list(
+            case.blocked_production(
+                key, case.time_range(start=start_year_jan1, end=end_date, interval="1y")
+            )
+            * unit_conversion
+        )
 
         if time_range_to_crop is not None:
             deduct = list(

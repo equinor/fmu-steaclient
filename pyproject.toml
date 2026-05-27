@@ -92,6 +92,8 @@ select = [
   "PL",  # pylint
   "PLC",
   "PLE",
+  "PLR",
+  "PLW",
   "PT",  # pytest
   "PYI",
   "Q",
@@ -109,6 +111,7 @@ select = [
   "W",   # pycodestyle
   "YTT"
 ]
+preview = true
 
 [tool.ruff.lint.pylint]
 max-args = 7
