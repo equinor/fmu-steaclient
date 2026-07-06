@@ -40,7 +40,7 @@ def setup_tmpdir(tmp_path, monkeypatch):
     summary.add_variable("FOPR", unit="SM3/DAY")
     mini_step_count = 10
     for mini_step in range(mini_step_count):
-        t_step = summary.addTStep(1, sim_days=mini_step_count + mini_step)
+        t_step = summary.add_t_step(1, sim_days=mini_step_count + mini_step)
         t_step["FOPR"] = 1
     summary.fwrite()
 
